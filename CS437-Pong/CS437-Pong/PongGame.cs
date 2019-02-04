@@ -72,8 +72,9 @@ namespace CS437_Pong
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            model.player1Offset += 100 * (float) gameTime.ElapsedGameTime.TotalSeconds;
             model.getPlayer1Rect(GraphicsDevice.Viewport, ref player1Rect);
+            model.getPlayer2Rect(GraphicsDevice.Viewport, ref player2Rect);
+            model.getBallRect(GraphicsDevice.Viewport, ref ball);
 
             base.Update(gameTime);
         }
@@ -89,6 +90,8 @@ namespace CS437_Pong
             // TODO: Add your drawing code here
             spriteBatch.Begin();
             spriteBatch.Draw(colorStrip, player1Rect, whiteColor, Color.White);
+            spriteBatch.Draw(colorStrip, player2Rect, whiteColor, Color.Red);
+            spriteBatch.Draw(colorStrip, ball, whiteColor, Color.Green);
             spriteBatch.End();
 
             base.Draw(gameTime);

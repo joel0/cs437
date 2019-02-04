@@ -11,9 +11,14 @@ namespace CS437_Pong
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        PongModel model = new PongModel();
 
         Texture2D colorStrip;
         Rectangle whiteColor;
+
+        Rectangle player1Rect = new Rectangle();
+        Rectangle player2Rect = new Rectangle();
+        Rectangle ball = new Rectangle();
 
         public PongGame()
         {
@@ -67,7 +72,8 @@ namespace CS437_Pong
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            model.player1Offset += 100 * (float) gameTime.ElapsedGameTime.TotalSeconds;
+            model.getPlayer1Rect(GraphicsDevice.Viewport, ref player1Rect);
 
             base.Update(gameTime);
         }
@@ -80,11 +86,9 @@ namespace CS437_Pong
         {
             GraphicsDevice.Clear(new Color(20, 20, 20));
 
-            Rectangle r = new Rectangle(0, 0, 10, 50);
-
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-            spriteBatch.Draw(colorStrip, r, whiteColor, Color.White);
+            spriteBatch.Draw(colorStrip, player1Rect, whiteColor, Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

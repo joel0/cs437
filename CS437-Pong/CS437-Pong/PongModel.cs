@@ -15,11 +15,11 @@ namespace CS437_Pong
         /// <summary>
         /// Horizontal padding around the play area.
         /// </summary>
-        const int paddingHorizontal = 40;
+        const int paddingScaleHorizontal = 40;
         /// <summary>
         /// Vertical padding around the play area (where the ball will bounce and where paddles cannot go).
         /// </summary>
-        const int paddingVertical = 24;
+        const int paddingScaleVertical = 24;
         /// <summary>
         /// The height of a player paddle.
         /// </summary>
@@ -41,11 +41,19 @@ namespace CS437_Pong
         /// <summary>
         /// Player 1's vertical position between 0.0 and 1.0 between top and bottom padding.
         /// </summary>
-        float player1Pos = 0;
+        float player1Pos = 0.5f;
         /// <summary>
         /// Player 2's vertical position between 0.0 and 1.0 between top and bottom padding.
         /// </summary>
-        float player2Pos = 0;
+        float player2Pos = 0.5f;
+        /// <summary>
+        /// The ball horizontal position within the play area, with 0.0 and 1.0 as the bounds, but allows out of bounds.
+        /// </summary>
+        float ballPosX = 0.5f;
+        /// <summary>
+        /// The ball vertical position within the play area, bounded by 0.0 and 1.0 as the edges of the play area.
+        /// </summary>
+        float ballPosY = 0.5f;
 
         public void getPlayer1Rect(Viewport vp, ref Rectangle r)
         {
@@ -53,9 +61,10 @@ namespace CS437_Pong
             r.Width = scaleToPxH(vp, paddleScaleWidth);
 
             // Left side of the paddle is aligned with the left padding of the play area.
-            r.X = scaleToPxH(vp, paddingHorizontal);
-            // TODO: scale 0.0 to 1.0
-            r.Y = scaleToPxV(vp, paddingVertical) + (int)player1Pos;
+            r.X = scaleToPxH(vp, paddingScaleHorizontal);
+            int paddingV = scaleToPxV(vp, paddingScaleVertical);
+            // top padding + player movable range, which is vp height minus both paddings and paddle height.
+            r.Y = paddingV + (int)(player1Pos * (vp.Height - 2 * paddingV - r.Height));
         }
 
         public void getPlayer2Rect(Viewport vp, ref Rectangle r)
@@ -64,9 +73,10 @@ namespace CS437_Pong
             r.Width = scaleToPxH(vp, paddleScaleWidth);
 
             // Right side of the paddle is aligned with the right padding of the play area.
-            r.X = vp.Width - r.Width - scaleToPxH(vp, paddingHorizontal);
-            // TODO: scale 0.0 to 1.0
-            r.Y = scaleToPxV(vp, paddingVertical) + (int)player2Pos;
+            r.X = vp.Width - r.Width - scaleToPxH(vp, paddingScaleHorizontal);
+            // top padding + player movable range, which is vp height minus both paddings and paddle height.
+            int paddingV = scaleToPxV(vp, paddingScaleVertical);
+            r.Y = paddingV + (int)(player2Pos * (vp.Height - 2 * paddingV - r.Height));
         }
 
         public void getBallRect(Viewport vp, ref Rectangle r)
@@ -74,9 +84,10 @@ namespace CS437_Pong
             r.Height = scaleToPxV(vp, ballScaleHeight);
             r.Width = scaleToPxH(vp, ballScaleWidth);
 
-            // TODO: offset in instavars
-            r.X = 100;
-            r.Y = 100;
+            int paddingH = scaleToPxH(vp, paddingScaleHorizontal);
+            int paddingV = scaleToPxV(vp, paddingScaleVertical);
+            r.X = paddingH + (int)(ballPosX * (vp.Width - 2 * paddingH - r.Width));
+            r.Y = paddingV + (int)(ballPosY * (vp.Height - 2 * paddingV - r.Height));
         }
 
         // ===== SCALE UNIT TRANSLATIONS =====

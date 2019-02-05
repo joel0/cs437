@@ -11,7 +11,8 @@ namespace CS437_Pong
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        PongModel model = new PongModel();
+        PongModel model;
+        PongController controller;
 
         Texture2D colorStrip;
         Rectangle whiteColor;
@@ -34,7 +35,9 @@ namespace CS437_Pong
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            model = new PongModel();
+            controller = new PongController(model);
+
             colorStrip = Content.Load<Texture2D>("colorStrip");
             whiteColor = new Rectangle(1, 0, 0, 0);
 
@@ -72,6 +75,7 @@ namespace CS437_Pong
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            controller.updateModel(gameTime);
             model.getPlayer1Rect(GraphicsDevice.Viewport, ref player1Rect);
             model.getPlayer2Rect(GraphicsDevice.Viewport, ref player2Rect);
             model.getBallRect(GraphicsDevice.Viewport, ref ball);
@@ -87,7 +91,6 @@ namespace CS437_Pong
         {
             GraphicsDevice.Clear(new Color(20, 20, 20));
 
-            // TODO: Add your drawing code here
             spriteBatch.Begin();
             spriteBatch.Draw(colorStrip, player1Rect, whiteColor, Color.White);
             spriteBatch.Draw(colorStrip, player2Rect, whiteColor, Color.Red);

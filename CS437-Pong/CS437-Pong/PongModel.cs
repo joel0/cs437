@@ -41,19 +41,19 @@ namespace CS437_Pong
         /// <summary>
         /// Player 1's vertical position between 0.0 and 1.0 between top and bottom padding.
         /// </summary>
-        float player1Pos = 0.5f;
+        public float player1Pos = 0.5f;
         /// <summary>
         /// Player 2's vertical position between 0.0 and 1.0 between top and bottom padding.
         /// </summary>
-        float player2Pos = 0.5f;
+        public float player2Pos = 0.5f;
         /// <summary>
         /// The ball horizontal position within the play area, with 0.0 and 1.0 as the bounds, but allows out of bounds.
         /// </summary>
-        float ballPosX = 0.5f;
+        public float ballPosX = 0.5f;
         /// <summary>
         /// The ball vertical position within the play area, bounded by 0.0 and 1.0 as the edges of the play area.
         /// </summary>
-        float ballPosY = 0.5f;
+        public float ballPosY = 0.5f;
 
         public void getPlayer1Rect(Viewport vp, ref Rectangle r)
         {

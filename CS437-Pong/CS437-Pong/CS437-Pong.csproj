@@ -41,6 +41,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="KeyMap.cs" />
     <Compile Include="PongController.cs" />
     <Compile Include="PongGame.cs" />
     <Compile Include="PongModel.cs" />

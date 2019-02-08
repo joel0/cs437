@@ -23,8 +23,10 @@ namespace CS437_Pong
         /// <param name="t">The amount of time that has passed.</param>
         public void updateModel(GameTime t)
         {
-            model.player1Pos += (float)t.ElapsedGameTime.TotalSeconds;
-            model.player1Pos %= 1.0f;
+            if (Keyboard.GetState().IsKeyDown(KeyMap.W))
+            {
+                model.player1Pos += (float)t.ElapsedGameTime.TotalSeconds;
+            }
         }
     }
 }

@@ -53,6 +53,10 @@ namespace CS437_Pong
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // Disable vsync
+            IsFixedTimeStep = false;
+            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.ApplyChanges();
             // TODO: use this.Content to load your game content here
         }
 

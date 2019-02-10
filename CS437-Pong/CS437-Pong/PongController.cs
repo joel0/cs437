@@ -11,6 +11,8 @@ namespace CS437_Pong
     class PongController
     {
         PongModel model;
+        float ballVelocityX = 1.5f;
+        float ballVelocityY = 1.5f;
 
         public PongController(PongModel gameModel)
         {
@@ -23,7 +25,13 @@ namespace CS437_Pong
         /// <param name="t">The amount of time that has passed.</param>
         public void updateModel(GameTime t)
         {
-            // ----- User Input -----
+            // ----- Update Positions -----
+            movePlayers(t);
+            moveBall(t);
+        }
+
+        void movePlayers(GameTime t)
+        {
             // Player 1
             if (Keyboard.GetState().IsKeyDown(KeyMap.W))
             {
@@ -33,7 +41,6 @@ namespace CS437_Pong
             {
                 model.player1Pos += (float)t.ElapsedGameTime.TotalSeconds;
             }
-
             // Player 2
             // Note, this is not using KeyMap because it is assumed that the keyboard layout won't change arrow keys.
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
@@ -45,7 +52,7 @@ namespace CS437_Pong
                 model.player2Pos += (float)t.ElapsedGameTime.TotalSeconds;
             }
 
-            // ----- Keep everything in bounds -----
+            // ----- Keep players in bounds -----
             // Player 1
             if (model.player1Pos < 0)
             {
@@ -60,9 +67,20 @@ namespace CS437_Pong
             {
                 model.player2Pos = 0;
             }
-            else if (model.player2Pos > 1) {
+            else if (model.player2Pos > 1)
+            {
                 model.player2Pos = 1;
             }
+
+            // ----- Check for ball collisions -----
+            // Player 1
+            //if (model.ballPosX < model.player2Pos)
+        }
+
+        void moveBall(GameTime t)
+        {
+            model.ballPosX += (float)t.ElapsedGameTime.TotalSeconds * ballVelocityX;
+            model.ballPosY += (float)t.ElapsedGameTime.TotalSeconds * ballVelocityY;
         }
     }
 }

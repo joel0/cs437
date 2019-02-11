@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,9 @@ namespace CS437_Pong
         float ballVelocityX = -0.3f;
         float ballVelocityY = 0.5f;
         Random rng = new Random();
+
+        public SoundEffect soundWin;
+        public SoundEffect soundPaddle;
 
         public PongController(PongModel gameModel)
         {
@@ -44,10 +48,12 @@ namespace CS437_Pong
             if (model.isBallCollidePlayer1)
             {
                 ballVelocityX = 0.5f;
+                soundPaddle.Play();
             }
             if (model.isBallCollidePlayer2)
             {
                 ballVelocityX = -0.5f;
+                soundPaddle.Play();
             }
 
             // ----- Check for win/loss condition -----
@@ -58,6 +64,7 @@ namespace CS437_Pong
                 model.player2Score++;
                 ballVelocityX = -ballVelocityX;
                 ballVelocityY = (float)rng.NextDouble();
+                soundWin.Play();
             }
             if (model.ballPosX > 1.2f)
             {
@@ -66,6 +73,7 @@ namespace CS437_Pong
                 model.player1Score++;
                 ballVelocityX = -ballVelocityX;
                 ballVelocityY = (float)rng.NextDouble();
+                soundWin.Play();
             }
         }
 

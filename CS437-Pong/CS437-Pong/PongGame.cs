@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -19,8 +20,7 @@ namespace CS437_Pong
         Rectangle whiteColor;
 
         string score;
-        Vector2 player1ScoreLocation = new Vector2();
-        Vector2 player2ScoreLocation = new Vector2();
+        Vector2 scoreLocation = new Vector2();
         Rectangle player1Rect = new Rectangle();
         Rectangle player2Rect = new Rectangle();
         Rectangle ball = new Rectangle();
@@ -62,6 +62,8 @@ namespace CS437_Pong
 
             colorStrip = Content.Load<Texture2D>("colorStrip");
             scoreFont = Content.Load<SpriteFont>("scoreFont");
+            controller.soundPaddle = Content.Load<SoundEffect>("paddle");
+            controller.soundWin = Content.Load<SoundEffect>("win");
         }
 
         /// <summary>
@@ -97,14 +99,14 @@ namespace CS437_Pong
         {
             GraphicsDevice.Clear(new Color(20, 20, 20));
 
-            player1ScoreLocation.X = (float)GraphicsDevice.Viewport.Width / 2 - 40;
-            player1ScoreLocation.Y = (float)GraphicsDevice.Viewport.Height / 30;
+            scoreLocation.X = (float)GraphicsDevice.Viewport.Width / 2 - 40;
+            scoreLocation.Y = (float)GraphicsDevice.Viewport.Height / 30;
 
             spriteBatch.Begin();
             spriteBatch.Draw(colorStrip, player1Rect, whiteColor, Color.White);
             spriteBatch.Draw(colorStrip, player2Rect, whiteColor, Color.Red);
             spriteBatch.Draw(colorStrip, ball, whiteColor, Color.Green);
-            spriteBatch.DrawString(scoreFont, score, player1ScoreLocation, Color.Lime);
+            spriteBatch.DrawString(scoreFont, score, scoreLocation, Color.Lime);
             spriteBatch.End();
 
             base.Draw(gameTime);

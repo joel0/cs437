@@ -25,10 +25,22 @@
 /processorParam:TextureFormat=Color
 /build:colorStrip.png
 
+#begin KbdFunction.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:KbdFunction.wav;paddle.wav
+
 #begin scoreFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:scoreFont.spritefont
+
+#begin Windows Print complete.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Windows Print complete.wav;win.wav
 

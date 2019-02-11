@@ -16,6 +16,8 @@ namespace CS437_Pong
         PongController controller;
 
         Texture2D colorStrip;
+        Texture2D texturePaddle;
+        Texture2D textureBall;
         SpriteFont scoreFont;
         Rectangle whiteColor;
 
@@ -24,6 +26,7 @@ namespace CS437_Pong
         Rectangle player1Rect = new Rectangle();
         Rectangle player2Rect = new Rectangle();
         Rectangle ball = new Rectangle();
+        Rectangle texturePaddleReverseRegion;
 
         public PongGame()
         {
@@ -61,6 +64,9 @@ namespace CS437_Pong
             graphics.ApplyChanges();
 
             colorStrip = Content.Load<Texture2D>("colorStrip");
+            texturePaddle = Content.Load<Texture2D>("paddleTex");
+            texturePaddleReverseRegion = new Rectangle(texturePaddle.Width, 0, -texturePaddle.Width, texturePaddle.Height);
+            textureBall = Content.Load<Texture2D>("ball");
             scoreFont = Content.Load<SpriteFont>("scoreFont");
             controller.soundPaddle = Content.Load<SoundEffect>("paddle");
             controller.soundWin = Content.Load<SoundEffect>("win");
@@ -97,15 +103,15 @@ namespace CS437_Pong
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(new Color(20, 20, 20));
+            GraphicsDevice.Clear(Color.Black);
 
             scoreLocation.X = (float)GraphicsDevice.Viewport.Width / 2 - 40;
             scoreLocation.Y = (float)GraphicsDevice.Viewport.Height / 30;
 
             spriteBatch.Begin();
-            spriteBatch.Draw(colorStrip, player1Rect, whiteColor, Color.White);
-            spriteBatch.Draw(colorStrip, player2Rect, whiteColor, Color.Red);
-            spriteBatch.Draw(colorStrip, ball, whiteColor, Color.Green);
+            spriteBatch.Draw(texturePaddle, player1Rect, Color.Blue);
+            spriteBatch.Draw(texturePaddle, player2Rect, texturePaddleReverseRegion, Color.Red);
+            spriteBatch.Draw(textureBall, ball, Color.White);
             spriteBatch.DrawString(scoreFont, score, scoreLocation, Color.Lime);
             spriteBatch.End();
 

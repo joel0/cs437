@@ -79,6 +79,7 @@ namespace CS437_Pong
 
         void movePlayers(GameTime t)
         {
+            // ----- Keyboard -----
             // Player 1
             if (Keyboard.GetState().IsKeyDown(KeyMap.W))
             {
@@ -98,6 +99,9 @@ namespace CS437_Pong
             {
                 model.player2Pos += (float)t.ElapsedGameTime.TotalSeconds;
             }
+            // ----- Gamepad -----
+            model.player1Pos -= GamePad.GetState(0).ThumbSticks.Left.Y / 1000;
+            model.player2Pos -= GamePad.GetState(1).ThumbSticks.Left.Y / 1000;
 
             // ----- Keep players in bounds -----
             // Player 1

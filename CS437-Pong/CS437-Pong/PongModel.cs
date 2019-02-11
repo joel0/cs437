@@ -38,6 +38,10 @@ namespace CS437_Pong
         /// </summary>
         const float ballPScaleWidth = 1.0f / 30;
 
+        // ===== GAME STATE =====
+        public int player1Score = 0;
+        public int player2Score = 0;
+
         // ===== OBJECT CURRENT POSITIONS =====
         /// <summary>
         /// Player 1's vertical position between 0.0 and 1.0 between top and bottom padding.

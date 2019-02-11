@@ -11,8 +11,9 @@ namespace CS437_Pong
     class PongController
     {
         PongModel model;
-        float ballVelocityX = -0.5f;
-        float ballVelocityY = 0f;
+        float ballVelocityX = -0.3f;
+        float ballVelocityY = 0.5f;
+        Random rng = new Random();
 
         public PongController(PongModel gameModel)
         {
@@ -30,6 +31,16 @@ namespace CS437_Pong
             moveBall(t);
 
             // ----- Check for ball collisions -----
+            if (model.ballPosY < 0)
+            {
+                model.ballPosY = -model.ballPosY;
+                ballVelocityY = Math.Abs(ballVelocityY);
+            }
+            if (model.ballPosY > 1)
+            {
+                model.ballPosY = 2 - model.ballPosY;
+                ballVelocityY = -Math.Abs(ballVelocityY);
+            }
             if (model.isBallCollidePlayer1)
             {
                 ballVelocityX = 0.5f;
@@ -38,7 +49,24 @@ namespace CS437_Pong
             {
                 ballVelocityX = -0.5f;
             }
-            //TODO vertical ball collisions
+
+            // ----- Check for win/loss condition -----
+            if (model.ballPosX < -0.2f)
+            {
+                model.ballPosX = 0.5f;
+                model.ballPosY = 0.5f;
+                model.player2Score++;
+                ballVelocityX = -ballVelocityX;
+                ballVelocityY = (float)rng.NextDouble();
+            }
+            if (model.ballPosX > 1.2f)
+            {
+                model.ballPosX = 0.5f;
+                model.ballPosY = 0.5f;
+                model.player1Score++;
+                ballVelocityX = -ballVelocityX;
+                ballVelocityY = (float)rng.NextDouble();
+            }
         }
 
         void movePlayers(GameTime t)

@@ -15,8 +15,12 @@ namespace CS437_Pong
         PongController controller;
 
         Texture2D colorStrip;
+        SpriteFont scoreFont;
         Rectangle whiteColor;
 
+        string score;
+        Vector2 player1ScoreLocation = new Vector2();
+        Vector2 player2ScoreLocation = new Vector2();
         Rectangle player1Rect = new Rectangle();
         Rectangle player2Rect = new Rectangle();
         Rectangle ball = new Rectangle();
@@ -37,8 +41,6 @@ namespace CS437_Pong
         {
             model = new PongModel();
             controller = new PongController(model);
-
-            colorStrip = Content.Load<Texture2D>("colorStrip");
             whiteColor = new Rectangle(1, 0, 0, 0);
 
             base.Initialize();
@@ -57,17 +59,16 @@ namespace CS437_Pong
             IsFixedTimeStep = false;
             graphics.SynchronizeWithVerticalRetrace = false;
             graphics.ApplyChanges();
-            // TODO: use this.Content to load your game content here
+
+            colorStrip = Content.Load<Texture2D>("colorStrip");
+            scoreFont = Content.Load<SpriteFont>("scoreFont");
         }
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
         /// game-specific content.
         /// </summary>
-        protected override void UnloadContent()
-        {
-            // TODO: Unload any non ContentManager content here
-        }
+        protected override void UnloadContent() { }
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -83,6 +84,7 @@ namespace CS437_Pong
             model.getPlayer1Rect(GraphicsDevice.Viewport, ref player1Rect);
             model.getPlayer2Rect(GraphicsDevice.Viewport, ref player2Rect);
             model.getBallRect(GraphicsDevice.Viewport, ref ball);
+            score = string.Format("{0}:{1}", model.player1Score, model.player2Score);
 
             base.Update(gameTime);
         }
@@ -95,10 +97,14 @@ namespace CS437_Pong
         {
             GraphicsDevice.Clear(new Color(20, 20, 20));
 
+            player1ScoreLocation.X = (float)GraphicsDevice.Viewport.Width / 2 - 40;
+            player1ScoreLocation.Y = (float)GraphicsDevice.Viewport.Height / 30;
+
             spriteBatch.Begin();
             spriteBatch.Draw(colorStrip, player1Rect, whiteColor, Color.White);
             spriteBatch.Draw(colorStrip, player2Rect, whiteColor, Color.Red);
             spriteBatch.Draw(colorStrip, ball, whiteColor, Color.Green);
+            spriteBatch.DrawString(scoreFont, score, player1ScoreLocation, Color.Lime);
             spriteBatch.End();
 
             base.Draw(gameTime);

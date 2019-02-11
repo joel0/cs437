@@ -4,6 +4,8 @@
 This is a game of Pong.  Player 1 is on the left; player 2 is on the right.  The
 goal is simple: do not let the ball past your paddle.
 
+Note: v-sync has been turned off for a smoother gameplay experience.
+
 ## Controls
 ### Keyboard
 Keyboard controls are mapped to physical key locations rather than characters,

@@ -11,8 +11,8 @@ namespace CS437_Pong
     class PongController
     {
         PongModel model;
-        float ballVelocityX = 1.5f;
-        float ballVelocityY = 1.5f;
+        float ballVelocityX = -0.5f;
+        float ballVelocityY = 0f;
 
         public PongController(PongModel gameModel)
         {
@@ -28,6 +28,17 @@ namespace CS437_Pong
             // ----- Update Positions -----
             movePlayers(t);
             moveBall(t);
+
+            // ----- Check for ball collisions -----
+            if (model.isBallCollidePlayer1)
+            {
+                ballVelocityX = 0.5f;
+            }
+            if (model.isBallCollidePlayer2)
+            {
+                ballVelocityX = -0.5f;
+            }
+            //TODO vertical ball collisions
         }
 
         void movePlayers(GameTime t)
@@ -71,10 +82,6 @@ namespace CS437_Pong
             {
                 model.player2Pos = 1;
             }
-
-            // ----- Check for ball collisions -----
-            // Player 1
-            //if (model.ballPosX < model.player2Pos)
         }
 
         void moveBall(GameTime t)

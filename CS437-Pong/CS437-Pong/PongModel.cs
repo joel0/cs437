@@ -56,16 +56,45 @@ namespace CS437_Pong
         /// </summary>
         public float ballPosY = 0.5f;
 
+        // ====== OBJECT VIRTUAL VALUES =====
+        public float virtPlayer1Left { get { return 0f; } }
+        public float virtPlayer1Right { get { return paddlePScaleWidth; } }
+        public float virtPlayer1Top { get { return player1Pos * (1f - paddlePScaleHeight); } }
+        public float virtPlayer1Bottom { get { return virtPlayer1Top + paddlePScaleHeight; } }
+
+        public float virtPlayer2Left { get { return 1f - paddlePScaleWidth; } }
+        public float virtPlayer2Right { get { return 1f; } }
+        public float virtPlayer2Top { get { return player2Pos * (1f - paddlePScaleHeight); } }
+        public float virtPlayer2Bottom { get { return virtPlayer2Top + paddlePScaleHeight; } }
+
+
+        public float virtBallLeft { get { return ballPosX * (1f - ballPScaleWidth); } }
+        public float virtBallRight { get { return virtBallLeft + ballPScaleWidth; } }
+        public float virtBallTop { get { return ballPosY * (1f - ballPScaleHeight); } }
+        public float virtBallBottom { get { return virtBallTop + ballPScaleHeight; } }
+
+        public bool isBallCollidePlayer1 {
+            get {
+                return virtBallLeft < virtPlayer1Right && virtBallRight > virtPlayer1Left &&
+                    virtBallBottom > virtPlayer1Top && virtBallTop < virtPlayer1Bottom;
+            }
+        }
+        public bool isBallCollidePlayer2 {
+            get {
+                return virtBallLeft < virtPlayer2Right && virtBallRight > virtPlayer2Left &&
+                    virtBallBottom > virtPlayer2Top && virtBallTop < virtPlayer2Bottom;
+            }
+        }
+
         public void getPlayer1Rect(Viewport vp, ref Rectangle r)
         {
             r.Height = pScaleToPxV(vp, paddlePScaleHeight);
             r.Width = pScaleToPxH(vp, paddlePScaleWidth);
 
-            // Left side of the paddle is aligned with the left padding of the play area.
-            r.X = scaleToPxH(vp, paddingScaleHorizontal);
+            int paddingH = scaleToPxH(vp, paddingScaleHorizontal);
             int paddingV = scaleToPxV(vp, paddingScaleVertical);
-            // top padding + player movable range, which is vp height minus both paddings and paddle height.
-            r.Y = paddingV + pScaleToPxV(vp, player1Pos * (1f - paddlePScaleHeight));
+            r.X = paddingH; // Implicit player1left added
+            r.Y = paddingV + pScaleToPxV(vp, virtPlayer1Top);
         }
 
         public void getPlayer2Rect(Viewport vp, ref Rectangle r)
@@ -75,10 +104,8 @@ namespace CS437_Pong
 
             int paddingH = scaleToPxH(vp, paddingScaleHorizontal);
             int paddingV = scaleToPxV(vp, paddingScaleVertical);
-            // Right side of the paddle is aligned with the right padding of the play area.
-            r.X = paddingH + pScaleToPxH(vp, 1f - paddlePScaleWidth);
-            // top padding + player movable range, which is vp height minus both paddings and paddle height.
-            r.Y = paddingV + pScaleToPxV(vp, player2Pos * (1f - paddlePScaleHeight));
+            r.X = paddingH + pScaleToPxH(vp, virtPlayer2Left);
+            r.Y = paddingV + pScaleToPxV(vp, virtPlayer2Top);
         }
 
         public void getBallRect(Viewport vp, ref Rectangle r)
@@ -88,8 +115,8 @@ namespace CS437_Pong
 
             int paddingH = scaleToPxH(vp, paddingScaleHorizontal);
             int paddingV = scaleToPxV(vp, paddingScaleVertical);
-            r.X = paddingH + pScaleToPxH(vp, ballPosX * (1f - ballPScaleWidth));
-            r.Y = paddingV + pScaleToPxV(vp, ballPosY * (1f - ballPScaleHeight));
+            r.X = paddingH + pScaleToPxH(vp, virtBallLeft);
+            r.Y = paddingV + pScaleToPxV(vp, virtBallTop);
         }
 
         // ===== SCALE UNIT TRANSLATIONS =====

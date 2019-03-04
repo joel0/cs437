@@ -11,6 +11,7 @@ namespace Project1B
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Model cubeModel;
 
         public SpaceDockerGame()
         {
@@ -39,6 +40,7 @@ namespace Project1B
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            cubeModel = Content.Load<Model>("cube");
 
             // TODO: use this.Content to load your game content here
         }
@@ -76,6 +78,13 @@ namespace Project1B
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            foreach (var bone in cubeModel.Bones)
+            {
+                foreach (var mesh in bone.Meshes)
+                {
+                    mesh.Draw();
+                }
+            }
 
             base.Draw(gameTime);
         }

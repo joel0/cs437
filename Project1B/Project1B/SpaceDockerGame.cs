@@ -37,7 +37,7 @@ namespace Project1B
             float tilt = MathHelper.ToRadians(0);  // 0 degree angle
                                                    // Use the world matrix to tilt the cube along x and y axes.
             worldMatrix = Matrix.CreateRotationX(tilt) * Matrix.CreateRotationY(tilt);
-            viewMatrix = Matrix.CreateLookAt(new Vector3(5, 500, 600), Vector3.Zero, Vector3.Up);
+            viewMatrix = Matrix.CreateLookAt(new Vector3(200, 500, 600), Vector3.Zero, Vector3.Up);
 
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(45),  // 45 degree angle
@@ -64,7 +64,7 @@ namespace Project1B
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            cubeModel = Content.Load<Model>("cube");
+            cubeModel = Content.Load<Model>("cube2");
 
             // TODO: use this.Content to load your game content here
         }

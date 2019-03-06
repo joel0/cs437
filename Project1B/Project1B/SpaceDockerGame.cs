@@ -13,6 +13,12 @@ namespace Project1B
         SpriteBatch spriteBatch;
         Model cubeModel;
 
+        // Copied from documentation
+        Matrix worldMatrix;
+        Matrix viewMatrix;
+        Matrix projectionMatrix;
+        BasicEffect basicEffect;
+
         public SpaceDockerGame()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -28,6 +34,24 @@ namespace Project1B
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            float tilt = MathHelper.ToRadians(0);  // 0 degree angle
+                                                   // Use the world matrix to tilt the cube along x and y axes.
+            worldMatrix = Matrix.CreateRotationX(tilt) * Matrix.CreateRotationY(tilt);
+            viewMatrix = Matrix.CreateLookAt(new Vector3(5, 500, 600), Vector3.Zero, Vector3.Up);
+
+            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.ToRadians(45),  // 45 degree angle
+                (float)GraphicsDevice.Viewport.Width /
+                (float)GraphicsDevice.Viewport.Height,
+                1.0f, 10000.0f);
+
+            basicEffect = new BasicEffect(graphics.GraphicsDevice);
+
+            basicEffect.World = worldMatrix;
+            basicEffect.View = viewMatrix;
+            basicEffect.Projection = projectionMatrix;
+
+            basicEffect.EnableDefaultLighting();
 
             base.Initialize();
         }
@@ -77,14 +101,35 @@ namespace Project1B
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
-            foreach (var bone in cubeModel.Bones)
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+
+            // Copy any parent transforms.
+            Matrix[] transforms = new Matrix[cubeModel.Bones.Count];
+            cubeModel.CopyAbsoluteBoneTransformsTo(transforms);
+
+            // Draw the model. A model can have multiple meshes, so loop.
+            foreach (ModelMesh mesh in cubeModel.Meshes)
             {
-                foreach (var mesh in bone.Meshes)
+                // This is where the mesh orientation is set, as well 
+                // as our camera and projection.
+                foreach (BasicEffect effect in mesh.Effects)
                 {
-                    mesh.Draw();
+                    effect.EnableDefaultLighting();
+                    effect.World = transforms[mesh.ParentBone.Index] *
+                        worldMatrix // Matrix.CreateRotationY(modelRotation)
+                        * Matrix.CreateTranslation(Vector3.Zero); // modelPosition);
+                    effect.View = viewMatrix; // Matrix.CreateLookAt(cameraPosition,
+                                              //Vector3.Zero, Vector3.Up);
+                    effect.Projection = projectionMatrix; /* Matrix.CreatePerspectiveFieldOfView(
+                        MathHelper.ToRadians(45.0f), aspectRatio,
+                        1.0f, 10000.0f);*/
                 }
+                // Draw the mesh, using the effects set above.
+                mesh.Draw();
             }
+
 
             base.Draw(gameTime);
         }

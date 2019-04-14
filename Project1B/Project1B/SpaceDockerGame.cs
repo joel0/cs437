@@ -11,7 +11,8 @@ namespace Project1B
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Model cubeModel;
+        Model shipModel;
+        Model mothershipModel;
 
         // Copied from documentation
         Matrix worldMatrix;
@@ -45,11 +46,12 @@ namespace Project1B
                 (float)GraphicsDevice.Viewport.Height,
                 1.0f, 10000.0f);
 
-            basicEffect = new BasicEffect(graphics.GraphicsDevice);
-
-            basicEffect.World = worldMatrix;
-            basicEffect.View = viewMatrix;
-            basicEffect.Projection = projectionMatrix;
+            basicEffect = new BasicEffect(graphics.GraphicsDevice)
+            {
+                World = worldMatrix,
+                View = viewMatrix,
+                Projection = projectionMatrix
+            };
 
             basicEffect.EnableDefaultLighting();
 
@@ -64,9 +66,9 @@ namespace Project1B
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            cubeModel = Content.Load<Model>("cube2");
-
-            // TODO: use this.Content to load your game content here
+            shipModel = Content.Load<Model>("Models/p1_wedge");
+            mothershipModel = Content.Load<Model>("Models/mothership");
+            // TODO load asteroid model
         }
 
         /// <summary>
@@ -105,21 +107,26 @@ namespace Project1B
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
+            DrawShip();
+
+
+            base.Draw(gameTime);
+        }
+
+        private void DrawShip() {
             // Copy any parent transforms.
-            Matrix[] transforms = new Matrix[cubeModel.Bones.Count];
-            cubeModel.CopyAbsoluteBoneTransformsTo(transforms);
+            Matrix[] transforms = new Matrix[shipModel.Bones.Count];
+            shipModel.CopyAbsoluteBoneTransformsTo(transforms);
 
             // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in cubeModel.Meshes)
-            {
+            foreach (ModelMesh mesh in shipModel.Meshes) {
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
+                foreach (BasicEffect effect in mesh.Effects) {
                     effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index] *
-                        worldMatrix // Matrix.CreateRotationY(modelRotation)
-                        * Matrix.CreateTranslation(Vector3.Zero); // modelPosition);
+                    effect.World = worldMatrix; // transforms[mesh.ParentBone.Index] *
+                        //worldMatrix // Matrix.CreateRotationY(modelRotation)
+                        //* Matrix.CreateTranslation(Vector3.Zero); // modelPosition);
                     effect.View = viewMatrix; // Matrix.CreateLookAt(cameraPosition,
                                               //Vector3.Zero, Vector3.Up);
                     effect.Projection = projectionMatrix; /* Matrix.CreatePerspectiveFieldOfView(
@@ -129,9 +136,6 @@ namespace Project1B
                 // Draw the mesh, using the effects set above.
                 mesh.Draw();
             }
-
-
-            base.Draw(gameTime);
         }
     }
 }

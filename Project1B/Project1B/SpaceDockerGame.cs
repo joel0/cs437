@@ -18,6 +18,7 @@ namespace Project1B
         Matrix worldMatrix;
         Matrix viewMatrix;
         Matrix projectionMatrix;
+        Matrix shipProjectionMatrix;
         BasicEffect basicEffect;
 
         public SpaceDockerGame()
@@ -44,6 +45,10 @@ namespace Project1B
                 MathHelper.ToRadians(45),  // 45 degree angle
                 (float)GraphicsDevice.Viewport.Width /
                 (float)GraphicsDevice.Viewport.Height,
+                1.0f, 10000.0f);
+            shipProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.ToRadians(45),
+                GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height,
                 1.0f, 10000.0f);
 
             basicEffect = new BasicEffect(graphics.GraphicsDevice)
@@ -124,12 +129,12 @@ namespace Project1B
                 // as our camera and projection.
                 foreach (BasicEffect effect in mesh.Effects) {
                     effect.EnableDefaultLighting();
-                    effect.World = worldMatrix; // transforms[mesh.ParentBone.Index] *
-                        //worldMatrix // Matrix.CreateRotationY(modelRotation)
-                        //* Matrix.CreateTranslation(Vector3.Zero); // modelPosition);
+                    effect.World = transforms[mesh.ParentBone.Index] *
+                        worldMatrix // Matrix.CreateRotationY(modelRotation)
+                        * Matrix.CreateTranslation(Vector3.Zero); // modelPosition);
                     effect.View = viewMatrix; // Matrix.CreateLookAt(cameraPosition,
                                               //Vector3.Zero, Vector3.Up);
-                    effect.Projection = projectionMatrix; /* Matrix.CreatePerspectiveFieldOfView(
+                    effect.Projection = shipProjectionMatrix; /* Matrix.CreatePerspectiveFieldOfView(
                         MathHelper.ToRadians(45.0f), aspectRatio,
                         1.0f, 10000.0f);*/
                 }

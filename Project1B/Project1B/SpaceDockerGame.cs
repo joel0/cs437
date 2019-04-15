@@ -18,10 +18,7 @@ namespace Project1B {
         Matrix mViewMatrix;
         BasicEffect mBasicEffect;
 
-        float mShipYaw = MathHelper.ToRadians(0);
-        float mShipPitch = MathHelper.ToRadians(0);
-        float mShipRoll = MathHelper.ToRadians(0);
-        Vector3 mShipLocation;
+        Matrix mShipLocationMatrix;
         Matrix mShipOrientationMatrix;
 
         public SpaceDockerGame()
@@ -38,14 +35,10 @@ namespace Project1B {
         /// </summary>
         protected override void Initialize()
         {
-            mShipLocation = new Vector3(0, 0, 1000);
-
-            mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
-
             mProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(45),  // 45 degree angle
                 (float)GraphicsDevice.Viewport.Width /
-                (float)GraphicsDevice.Viewport.Height,
+                GraphicsDevice.Viewport.Height,
                 1.0f, 10000.0f);
 
             mBasicEffect = new BasicEffect(mGraphics.GraphicsDevice)
@@ -55,7 +48,9 @@ namespace Project1B {
                 Projection = mProjectionMatrix
             };
 
-            mShipOrientationMatrix = Matrix.CreateTranslation(mShipLocation);
+            mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
+            mShipLocationMatrix = Matrix.CreateTranslation(new Vector3(0, 0, 1000));
+            mShipOrientationMatrix = mShipLocationMatrix;
 
             mBasicEffect.EnableDefaultLighting();
 
@@ -91,32 +86,25 @@ namespace Project1B {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            float yaw = MathHelper.ToRadians(0);
+            float pitch = MathHelper.ToRadians(0);
+            float roll = MathHelper.ToRadians(0);
+            Vector3 location = Vector3.Zero;
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (GamePad.GetState(PlayerIndex.One).IsConnected) {
-                mShipYaw -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
-                mShipPitch += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.Y;
-                mShipRoll += GamePad.GetState(PlayerIndex.One).Triggers.Left - GamePad.GetState(PlayerIndex.One).Triggers.Right;
+            if (GamePad.GetState(PlayerIndex.One).IsConnected)
+            {
+                yaw -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X;
+                pitch += GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.Y;
+                roll -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
+
+                location.Z += (GamePad.GetState(PlayerIndex.One).Triggers.Left - GamePad.GetState(PlayerIndex.One).Triggers.Right) * 50f;
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
-            {
-                //mShipLocation.Z += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                //mShipRotation += MathHelper.ToRadians(1);
-                mShipPitch += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
-            {
-                //mShipLocation.Z -= (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                //mShipRotation -= MathHelper.ToRadians(1);
-                mShipYaw -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            mShipOrientationMatrix = Matrix.CreateFromYawPitchRoll(mShipYaw * 0.1f, mShipPitch * 0.1f, mShipRoll * 0.1f) * mShipOrientationMatrix;
-            mShipYaw = 0;
-            mShipPitch = 0;
-            mShipRoll = 0;
+            mShipOrientationMatrix = Matrix.CreateFromYawPitchRoll(yaw * 0.1f, pitch * 0.1f, roll * 0.1f) * mShipOrientationMatrix;
+            mShipLocationMatrix = Matrix.Invert(mShipOrientationMatrix) * Matrix.CreateTranslation(location) * mShipOrientationMatrix * mShipLocationMatrix;
 
             base.Update(gameTime);
         }
@@ -127,11 +115,11 @@ namespace Project1B {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Matrix shipViewMatrix = mShipOrientationMatrix * Matrix.CreateTranslation(mShipLocation);
-            mViewMatrix = Matrix.Invert(mShipOrientationMatrix * Matrix.CreateTranslation(mShipLocation)) * Matrix.CreateTranslation(0, -700, -3000);
+            Matrix shipViewMatrix = mShipOrientationMatrix * mShipLocationMatrix;
+            mViewMatrix = Matrix.Invert(Matrix.CreateTranslation(0, 700, 3000) * shipViewMatrix);
             //mViewMatrix = mTestViewMatrix;
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;

@@ -38,7 +38,7 @@ namespace Project1B {
         /// </summary>
         protected override void Initialize()
         {
-            mShipLocation = new Vector3(0, 0, -1000);
+            mShipLocation = new Vector3(0, 0, 1000);
 
             mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
 
@@ -95,9 +95,9 @@ namespace Project1B {
                 Exit();
 
             if (GamePad.GetState(PlayerIndex.One).IsConnected) {
-                mShipYaw += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
+                mShipYaw -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
                 mShipPitch += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.Y;
-                mShipRoll += GamePad.GetState(PlayerIndex.One).Triggers.Right - GamePad.GetState(PlayerIndex.One).Triggers.Left;
+                mShipRoll += GamePad.GetState(PlayerIndex.One).Triggers.Left - GamePad.GetState(PlayerIndex.One).Triggers.Right;
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
@@ -128,7 +128,7 @@ namespace Project1B {
         protected override void Draw(GameTime gameTime)
         {
             Matrix shipViewMatrix = mShipOrientationMatrix * Matrix.CreateTranslation(mShipLocation);
-            mViewMatrix = Matrix.CreateTranslation(mShipLocation) * Matrix.CreateTranslation(0, -700, -3000);
+            mViewMatrix = Matrix.Invert(mShipOrientationMatrix * Matrix.CreateTranslation(mShipLocation)) * Matrix.CreateTranslation(0, -700, -3000);
             //mViewMatrix = mTestViewMatrix;
 
             GraphicsDevice.Clear(Color.CornflowerBlue);

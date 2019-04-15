@@ -113,7 +113,7 @@ namespace Project1B {
                 mShipYaw -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            mShipOrientationMatrix *= Matrix.CreateFromYawPitchRoll(mShipYaw * 0.1f, mShipPitch * 0.1f, mShipRoll * 0.1f);
+            mShipOrientationMatrix = Matrix.CreateFromYawPitchRoll(mShipYaw * 0.1f, mShipPitch * 0.1f, mShipRoll * 0.1f) * mShipOrientationMatrix;
             mShipYaw = 0;
             mShipPitch = 0;
             mShipRoll = 0;
@@ -127,7 +127,7 @@ namespace Project1B {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Matrix shipViewMatrix = Matrix.Invert(Matrix.CreateTranslation(mShipLocation) * mShipOrientationMatrix);
+            Matrix shipViewMatrix = mShipOrientationMatrix * Matrix.CreateTranslation(mShipLocation);
             mViewMatrix = Matrix.CreateTranslation(mShipLocation) * Matrix.CreateTranslation(0, -700, -3000);
             //mViewMatrix = mTestViewMatrix;
 

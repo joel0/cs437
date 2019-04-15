@@ -17,13 +17,15 @@ namespace Project1B {
         Matrix mProjectionMatrix;
         Matrix mViewMatrix;
         BasicEffect mBasicEffect;
-        
+
         float mShipYaw = MathHelper.ToRadians(0);
         float mShipPitch = MathHelper.ToRadians(0);
         float mShipRoll = MathHelper.ToRadians(0);
         Vector3 mShipLocation;
+        Matrix mShipOrientationMatrix;
 
-        public SpaceDockerGame() {
+        public SpaceDockerGame()
+        {
             mGraphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -34,7 +36,8 @@ namespace Project1B {
         /// related content.  Calling base.Initialize will enumerate through any components
         /// and initialize them as well.
         /// </summary>
-        protected override void Initialize() {
+        protected override void Initialize()
+        {
             mShipLocation = new Vector3(0, 0, -1000);
 
             mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
@@ -52,6 +55,8 @@ namespace Project1B {
                 Projection = mProjectionMatrix
             };
 
+            mShipOrientationMatrix = Matrix.CreateTranslation(mShipLocation);
+
             mBasicEffect.EnableDefaultLighting();
 
             base.Initialize();
@@ -61,7 +66,8 @@ namespace Project1B {
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
-        protected override void LoadContent() {
+        protected override void LoadContent()
+        {
             // Create a new SpriteBatch, which can be used to draw textures.
             mSpriteBatch = new SpriteBatch(GraphicsDevice);
             mShipModel = Content.Load<Model>("Models/p1_wedge");
@@ -73,7 +79,8 @@ namespace Project1B {
         /// UnloadContent will be called once per game and is the place to unload
         /// game-specific content.
         /// </summary>
-        protected override void UnloadContent() {
+        protected override void UnloadContent()
+        {
             // TODO: Unload any non ContentManager content here
         }
 
@@ -82,21 +89,34 @@ namespace Project1B {
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime) {
+        protected override void Update(GameTime gameTime)
+        {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
+            if (GamePad.GetState(PlayerIndex.One).IsConnected) {
+                mShipYaw += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
+                mShipPitch += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.Y;
+                mShipRoll += GamePad.GetState(PlayerIndex.One).Triggers.Right - GamePad.GetState(PlayerIndex.One).Triggers.Left;
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            {
                 //mShipLocation.Z += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 //mShipRotation += MathHelper.ToRadians(1);
                 mShipPitch += (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
+            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+            {
                 //mShipLocation.Z -= (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 //mShipRotation -= MathHelper.ToRadians(1);
                 mShipYaw -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
+
+            mShipOrientationMatrix *= Matrix.CreateFromYawPitchRoll(mShipYaw * 0.1f, mShipPitch * 0.1f, mShipRoll * 0.1f);
+            mShipYaw = 0;
+            mShipPitch = 0;
+            mShipRoll = 0;
 
             base.Update(gameTime);
         }
@@ -105,9 +125,10 @@ namespace Project1B {
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime) {
-            Matrix shipViewMatrix = Matrix.Invert(Matrix.CreateTranslation(mShipLocation) * Matrix.CreateFromYawPitchRoll(mShipYaw, mShipPitch, mShipRoll));
-            mViewMatrix = Matrix.CreateTranslation(mShipLocation) * Matrix.CreateFromYawPitchRoll(mShipYaw, mShipPitch, mShipRoll) * Matrix.CreateTranslation(0, -700, -3000);
+        protected override void Draw(GameTime gameTime)
+        {
+            Matrix shipViewMatrix = Matrix.Invert(Matrix.CreateTranslation(mShipLocation) * mShipOrientationMatrix);
+            mViewMatrix = Matrix.CreateTranslation(mShipLocation) * Matrix.CreateTranslation(0, -700, -3000);
             //mViewMatrix = mTestViewMatrix;
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -122,16 +143,19 @@ namespace Project1B {
             base.Draw(gameTime);
         }
 
-        private void DrawShip(Matrix shipViewMatrix) {
+        private void DrawShip(Matrix shipViewMatrix)
+        {
             // Copy any parent transforms.
             Matrix[] transforms = new Matrix[mShipModel.Bones.Count];
             mShipModel.CopyAbsoluteBoneTransformsTo(transforms);
 
             // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in mShipModel.Meshes) {
+            foreach (ModelMesh mesh in mShipModel.Meshes)
+            {
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects) {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] * shipViewMatrix;
                     effect.View = mViewMatrix;
@@ -142,16 +166,19 @@ namespace Project1B {
             }
         }
 
-        private void DrawMothership() {
+        private void DrawMothership()
+        {
             // Copy any parent transforms.
             Matrix[] transforms = new Matrix[mMothershipModel.Bones.Count];
             mMothershipModel.CopyAbsoluteBoneTransformsTo(transforms);
 
             // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in mMothershipModel.Meshes) {
+            foreach (ModelMesh mesh in mMothershipModel.Meshes)
+            {
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects) {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index];
                     effect.View = mViewMatrix;

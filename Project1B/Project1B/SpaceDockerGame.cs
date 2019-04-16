@@ -11,15 +11,22 @@ namespace Project1B {
         SpriteBatch mSpriteBatch;
         Model mShipModel;
         Model mMothershipModel;
+        Model mAsteroidModel;
 
-        // Copied from documentation
         Matrix mTestViewMatrix;
         Matrix mProjectionMatrix;
         Matrix mViewMatrix;
-        BasicEffect mBasicEffect;
 
         Matrix mShipLocationMatrix;
         Matrix mShipOrientationMatrix;
+
+        private BoundingSphere ShipBoundingSphere {
+            get {
+                BoundingSphere sphere = mShipModel.Meshes[0].BoundingSphere.Transform(mShipOrientationMatrix * mShipLocationMatrix);
+                sphere.Radius *= 0.5f; // Hand tuned parameter to match the ship model.
+                return sphere;
+            }
+        }
 
         public SpaceDockerGame()
         {
@@ -41,18 +48,9 @@ namespace Project1B {
                 GraphicsDevice.Viewport.Height,
                 1.0f, 10000.0f);
 
-            mBasicEffect = new BasicEffect(mGraphics.GraphicsDevice)
-            {
-                //World = mWorldMatrix,
-                View = mTestViewMatrix,
-                Projection = mProjectionMatrix
-            };
-
             mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
             mShipLocationMatrix = Matrix.CreateTranslation(new Vector3(0, 0, 1000));
             mShipOrientationMatrix = mShipLocationMatrix;
-
-            mBasicEffect.EnableDefaultLighting();
 
             base.Initialize();
         }
@@ -67,17 +65,14 @@ namespace Project1B {
             mSpriteBatch = new SpriteBatch(GraphicsDevice);
             mShipModel = Content.Load<Model>("Models/p1_wedge");
             mMothershipModel = Content.Load<Model>("Models/mothership");
-            // TODO load asteroid model
+            mAsteroidModel = Content.Load<Model>("Models/astroid");
         }
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
         /// game-specific content.
         /// </summary>
-        protected override void UnloadContent()
-        {
-            // TODO: Unload any non ContentManager content here
-        }
+        protected override void UnloadContent() { }
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -86,6 +81,7 @@ namespace Project1B {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            // PROCESS INPUT
             float yaw = MathHelper.ToRadians(0);
             float pitch = MathHelper.ToRadians(0);
             float roll = MathHelper.ToRadians(0);
@@ -103,6 +99,7 @@ namespace Project1B {
                 location.Z += (GamePad.GetState(PlayerIndex.One).Triggers.Left - GamePad.GetState(PlayerIndex.One).Triggers.Right) * 50f;
             }
 
+            // UPDATE OBJECTS
             mShipOrientationMatrix = Matrix.CreateFromYawPitchRoll(yaw * 0.1f, pitch * 0.1f, roll * 0.1f) * mShipOrientationMatrix;
             mShipLocationMatrix = Matrix.Invert(mShipOrientationMatrix) * Matrix.CreateTranslation(location) * mShipOrientationMatrix * mShipLocationMatrix;
 
@@ -115,8 +112,8 @@ namespace Project1B {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Matrix shipViewMatrix = mShipOrientationMatrix * mShipLocationMatrix;
-            mViewMatrix = Matrix.Invert(Matrix.CreateTranslation(0, 700, 3000) * shipViewMatrix);
+            Matrix shipWorldMatrix = mShipOrientationMatrix * mShipLocationMatrix;
+            mViewMatrix = Matrix.Invert(Matrix.CreateTranslation(-400, 400, 1800) * shipWorldMatrix);
             //mViewMatrix = mTestViewMatrix;
 
             GraphicsDevice.Clear(Color.Black);
@@ -125,13 +122,13 @@ namespace Project1B {
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
-            DrawShip(shipViewMatrix);
+            DrawShip(shipWorldMatrix);
             DrawMothership();
 
             base.Draw(gameTime);
         }
 
-        private void DrawShip(Matrix shipViewMatrix)
+        private void DrawShip(Matrix shipWorldMatrix)
         {
             // Copy any parent transforms.
             Matrix[] transforms = new Matrix[mShipModel.Bones.Count];
@@ -145,7 +142,7 @@ namespace Project1B {
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index] * shipViewMatrix;
+                    effect.World = transforms[mesh.ParentBone.Index] * shipWorldMatrix;
                     effect.View = mViewMatrix;
                     effect.Projection = mProjectionMatrix;
                 }

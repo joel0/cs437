@@ -51,17 +51,7 @@ namespace ReversiTournament {
             int startCol = col;
             BoardToken activeColor = BoardTokenFromTokenColor(player);
             BoardToken opponentColor = InvertColor(activeColor);
-            do {
-                row += rowDir;
-                col += colDir;
-                if (row < 0 || row > 7 || col < 0 || col > 7) {
-                    // Edge of board encountered.  No changes to make.
-                    return;
-                }
-            } while (mBoard[col, row] == opponentColor);
-
-            // If this line ends with the active player's piece, reverse on the path flipping pieces.
-            if (mBoard[col, row] == activeColor) {
+            if (CanClaimLine(player, ref row, ref col, rowDir, colDir)) {
                 row -= rowDir;
                 col -= colDir;
                 while (row != startRow || col != startCol) {
@@ -74,8 +64,56 @@ namespace ReversiTournament {
             }
         }
 
-        public Move GetMove() {
-            throw new NotImplementedException();
+        bool CanClaimLine(ReversiCommon.TokenColor player, ref int row, ref int col, int rowDir, int colDir) {
+            BoardToken activeColor = BoardTokenFromTokenColor(player);
+            BoardToken opponentColor = InvertColor(activeColor);
+            row += rowDir;
+            col += colDir;
+            if (row < 0 || row > 7 || col < 0 || col > 7 || mBoard[col, row] != opponentColor) {
+                // The neighbour must be an opponent token.
+                return false;
+            }
+            do {
+                row += rowDir;
+                col += colDir;
+                if (row < 0 || row > 7 || col < 0 || col > 7) {
+                    // Edge of board encountered.
+                    return false;
+                }
+            } while (mBoard[col, row] == opponentColor);
+
+            // If this line ends with the active player's piece, it's valid.
+            return mBoard[col, row] == activeColor;
+        }
+        // Function that strips the ref keywords
+        bool CanClaimLine(ReversiCommon.TokenColor player, int row, int col, int rowDir, int colDir) {
+            return CanClaimLine(player, ref row, ref col, rowDir, colDir);
+        }
+
+            public Move GetMove() {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    if (IsValidMove(mCurrentPlayer, row, col)) {
+                        return new Move(row, col);
+                    }
+                }
+            }
+            return null;
+        }
+
+        bool IsValidMove(ReversiCommon.TokenColor activePlayer, int row, int col) {
+            if (mBoard[col, row] != BoardToken.NONE) {
+                return false;
+            }
+            return
+                CanClaimLine(activePlayer, row, col, -1, 1) ||  // +
+                CanClaimLine(activePlayer, row, col, 0, 1) ||   // | Right side
+                CanClaimLine(activePlayer, row, col, 1, 1) ||   // +
+                CanClaimLine(activePlayer, row, col, 1, 0) ||   // - Bottom
+                CanClaimLine(activePlayer, row, col, 1, -1) ||  // +
+                CanClaimLine(activePlayer, row, col, 0, -1) ||  // | Left side
+                CanClaimLine(activePlayer, row, col, -1, -1) || // +
+                CanClaimLine(activePlayer, row, col, -1, 0);    // - Top
         }
 
 

@@ -37,13 +37,13 @@ public class ReversiTest
 			blackAgent.MakeMove(blackMove); // remember to update both agents!
 			whiteAgent.MakeMove(blackMove);
 
-			//Move whiteMove = whiteAgent.GetMove();
+            Console.WriteLine(((ReferenceAI)blackAgent).CurrentStateString());
 
-			//blackAgent.MakeMove(whiteMove);
-			//whiteAgent.MakeMove(whiteMove);
+            Move whiteMove = whiteAgent.GetMove();
 
-			// you don't need to include implement CurrentStateString; I included it for convenience/debugging
-			Console.WriteLine(((ReferenceAI)blackAgent).CurrentStateString());
+			blackAgent.MakeMove(whiteMove);
+			whiteAgent.MakeMove(whiteMove);
+
             Console.WriteLine(((JoelAI)whiteAgent).CurrentStateString());
 		}
 

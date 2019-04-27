@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace ReversiTournament {
     class JoelAI : ReversiMoves {
+        readonly int mRecursion;
         BoardToken[,] mBoard = new BoardToken[8, 8];
         int mCountBlackPieces;
         int mCountWhitePieces;
         ReversiCommon.TokenColor mMyColor;
         ReversiCommon.TokenColor mCurrentPlayer;
+        MiniMax.TreeNode mPredictRoot = null;
         ReversiCommon.TokenColor OpponentColor {
             get {
                 if (mMyColor == ReversiCommon.TokenColor.BLACK) {
@@ -18,6 +20,21 @@ namespace ReversiTournament {
                 }
                 return ReversiCommon.TokenColor.BLACK;
             }
+        }
+
+        /// <summary>
+        /// Intended to be run with recursion depth of 5!
+        /// </summary>
+        /// <param name="recursionDepth"></param>
+        public JoelAI(int recursionDepth) {
+            mRecursion = recursionDepth;
+        }
+        public JoelAI(JoelAI cloneSrc) {
+            mBoard = (BoardToken[,])cloneSrc.mBoard.Clone();
+            mCountBlackPieces = cloneSrc.mCountBlackPieces;
+            mCountWhitePieces = cloneSrc.mCountWhitePieces;
+            mMyColor = cloneSrc.mMyColor;
+            mCurrentPlayer = cloneSrc.mCurrentPlayer;
         }
 
         public void Reset(ReversiCommon.TokenColor yourColor, ReversiCommon.TokenColor firstPlayerColor) {
@@ -33,6 +50,9 @@ namespace ReversiTournament {
         }
 
         public void MakeMove(Move move) {
+            if (mPredictRoot != null) {
+                mPredictRoot = mPredictRoot.childNodes[MiniMax.GetMoveIndex(mPredictRoot, move)];
+            }
             ClaimLine(mCurrentPlayer, move.Row, move.Col, -1, 1);  // +
             ClaimLine(mCurrentPlayer, move.Row, move.Col, 0, 1);   // | Right side
             ClaimLine(mCurrentPlayer, move.Row, move.Col, 1, 1);   // +
@@ -44,6 +64,35 @@ namespace ReversiTournament {
             mBoard[move.Col, move.Row] = BoardTokenFromTokenColor(mCurrentPlayer);
             IncreaseCount(mCurrentPlayer);
             mCurrentPlayer = InvertColor(mCurrentPlayer);
+        }
+
+        public int EvaluationFunction() {
+            int score = 0;
+            if (mMyColor == ReversiCommon.TokenColor.WHITE) {
+                score = mCountWhitePieces - mCountBlackPieces;
+            } else {
+                score = mCountBlackPieces - mCountWhitePieces;
+            }
+            int cornerBonus = 0;
+            BoardToken myColor = BoardTokenFromTokenColor(mMyColor);
+            BoardToken oppColor = BoardTokenFromTokenColor(OpponentColor);
+            if (mBoard[0, 0] == myColor) { cornerBonus += 1; }
+            if (mBoard[0, 7] == myColor) { cornerBonus += 1; }
+            if (mBoard[7, 0] == myColor) { cornerBonus += 1; }
+            if (mBoard[7, 7] == myColor) { cornerBonus += 1; }
+            if (mBoard[0, 0] == oppColor) { cornerBonus -= 1; }
+            if (mBoard[0, 7] == oppColor) { cornerBonus -= 1; }
+            if (mBoard[7, 0] == oppColor) { cornerBonus -= 1; }
+            if (mBoard[7, 7] == oppColor) { cornerBonus -= 1; }
+            int deadendPenalty = 0;
+            if (GetLegalMoves().Count == 0) {
+                if (score > 0) {
+                    deadendPenalty = 100;
+                } else {
+                    deadendPenalty = -100;
+                }
+            }
+            return score + 5 * cornerBonus + deadendPenalty;
         }
 
         private void ClaimLine(ReversiCommon.TokenColor player, int row, int col, int rowDir, int colDir) {
@@ -90,15 +139,17 @@ namespace ReversiTournament {
             return CanClaimLine(player, ref row, ref col, rowDir, colDir);
         }
 
-            public Move GetMove() {
-            for (int row = 0; row < 8; row++) {
-                for (int col = 0; col < 8; col++) {
-                    if (IsValidMove(mCurrentPlayer, row, col)) {
-                        return new Move(row, col);
-                    }
-                }
+        public Move GetMove() {
+            if (mPredictRoot == null) {
+                mPredictRoot = MiniMax.BuildTree(this, mRecursion, false);
             }
-            return null;
+            MiniMax.ExtendTree(mPredictRoot, mRecursion, false);
+
+            int chosenIndex = MiniMax.BestMoveIndex(mPredictRoot);
+            Move chosenMove = mPredictRoot.childMoves[chosenIndex];
+            // Traverse down the tree
+            //mPredictRoot = mPredictRoot.childNodes[chosenIndex];
+            return chosenMove;
         }
 
         bool IsValidMove(ReversiCommon.TokenColor activePlayer, int row, int col) {
@@ -114,6 +165,18 @@ namespace ReversiTournament {
                 CanClaimLine(activePlayer, row, col, 0, -1) ||  // | Left side
                 CanClaimLine(activePlayer, row, col, -1, -1) || // +
                 CanClaimLine(activePlayer, row, col, -1, 0);    // - Top
+        }
+
+        public List<Move> GetLegalMoves() {
+            List<Move> legalMoves = new List<Move>(8 * 8);
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    if (IsValidMove(mCurrentPlayer, row, col)) {
+                        legalMoves.Add(new Move(row, col));
+                    }
+                }
+            }
+            return legalMoves;
         }
 
 
@@ -207,6 +270,108 @@ namespace ReversiTournament {
             NONE,
             BLACK,
             WHITE
+        }
+    }
+
+    static class MiniMax {
+        public static int WorstMoveIndex(TreeNode root) {
+            int minIndex = 0;
+            int minScore = root.childNodes[0].minmax;
+            for (int i = 1; i < root.childNodes.Length; i++) {
+                if (root.childNodes[i].minmax < minScore) {
+                    minScore = root.childNodes[i].minmax;
+                    minIndex = i;
+                }
+            }
+            return minIndex;
+        }
+        public static int BestMoveIndex(TreeNode root) {
+            int maxIndex = 0;
+            int maxScore = root.childNodes[0].minmax;
+            for (int i = 1; i < root.childNodes.Length; i++) {
+                if (root.childNodes[i].minmax > maxScore) {
+                    maxScore = root.childNodes[i].minmax;
+                    maxIndex = i;
+                }
+            }
+            return maxIndex;
+        }
+
+        public static int GetMoveIndex(TreeNode root, Move move) {
+            for (int i = 0; i < root.childMoves.Length; i++) {
+                if (root.childMoves[i].Row == move.Row &&
+                    root.childMoves[i].Col == move.Col) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public static void ExtendTree(TreeNode node, int depth, bool min) {
+            if (depth < 1) {
+                return;
+            }
+
+            int minmaxValue = min ? 2000 : -2000;
+            for (int i = 0; i < node.childNodes.Length; i++) {
+                if (node.childNodes[i] == null) {
+                    JoelAI tempState = new JoelAI(node.state);
+                    tempState.MakeMove(node.childMoves[i]);
+                    node.childNodes[i] = BuildTree(tempState, depth - 1, !min);
+                } else {
+                    ExtendTree(node.childNodes[i], depth - 1, !min);
+                }
+
+                int score = node.childScores[i];
+                if (node.childNodes[i] != null) {
+                    score = node.childNodes[i].minmax;
+                }
+                if ((min && score < minmaxValue) || (!min && score > minmaxValue)) {
+                    minmaxValue = score;
+                }
+            }
+            node.minmax = minmaxValue;
+        }
+
+        public static TreeNode BuildTree(JoelAI state, int depth, bool min) {
+            if (depth < 1) {
+                return null;
+            }
+
+            TreeNode node = new TreeNode();
+            List<Move> legalMoves = state.GetLegalMoves();
+            node.childNodes = new TreeNode[legalMoves.Count];
+            node.childScores = new int[legalMoves.Count];
+            node.childMoves = new Move[legalMoves.Count];
+            node.state = state;
+
+            int minmaxValue = min ? 2000 : -2000;
+            for (int i = 0; i < legalMoves.Count; i++) {
+                JoelAI tempState = new JoelAI(state);
+                tempState.MakeMove(legalMoves[i]);
+                node.childScores[i] = tempState.EvaluationFunction();
+                node.childMoves[i] = legalMoves[i];
+                node.childNodes[i] = BuildTree(tempState, depth - 1, !min);
+
+                int score = node.childScores[i];
+                if (node.childNodes[i] != null) {
+                    score = node.childNodes[i].minmax;
+                }
+                if ((min && score < minmaxValue) || (!min && score > minmaxValue)) {
+                    minmaxValue = score;
+                }
+            }
+            node.minmax = minmaxValue;
+            return node;
+        }
+
+        public class TreeNode {
+            public TreeNode[] childNodes;
+            public int[] childScores;
+            public Move[] childMoves;
+            public JoelAI state;
+
+            public int minmax;
         }
     }
 }

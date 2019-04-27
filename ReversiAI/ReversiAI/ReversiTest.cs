@@ -22,7 +22,7 @@ public class ReversiTest
 	public static void Main()
 	{
 		ReversiMoves blackAgent = new ReferenceAI(3); //my AI with depth 3 lookahead
-		ReversiMoves whiteAgent = new JoelAI();
+		ReversiMoves whiteAgent = new JoelAI(5);
 
 		blackAgent.Reset(ReversiCommon.TokenColor.BLACK, ReversiCommon.TokenColor.BLACK);
 		whiteAgent.Reset(ReversiCommon.TokenColor.WHITE, ReversiCommon.TokenColor.BLACK);
@@ -30,7 +30,7 @@ public class ReversiTest
 		Console.WriteLine(blackAgent);
 
 		// take the first 20 turns
-		for(int i = 0; i < 20; i += 2) // we increment by 2 because each iteration is a black and a white turn
+		for(int i = 0; i < 8*8-4; i += 2) // we increment by 2 because each iteration is a black and a white turn
 		{
 			Move blackMove = blackAgent.GetMove();
 

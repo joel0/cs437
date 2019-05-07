@@ -14,8 +14,8 @@ namespace Project1B {
         Model mAsteroidModel;
 
         Matrix mTestViewMatrix;
-        Matrix mProjectionMatrix;
-        Matrix mViewMatrix;
+        public Matrix ProjectionMatrix { get; private set; }
+        public Matrix ViewMatrix { get; private set; }
 
         Matrix mShipLocationMatrix;
         Matrix mShipOrientationMatrix;
@@ -32,6 +32,8 @@ namespace Project1B {
         {
             mGraphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            Components.Add(new Asteroid(this));
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace Project1B {
         /// </summary>
         protected override void Initialize()
         {
-            mProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+            ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(45),  // 45 degree angle
                 (float)GraphicsDevice.Viewport.Width /
                 GraphicsDevice.Viewport.Height,
@@ -113,7 +115,7 @@ namespace Project1B {
         protected override void Draw(GameTime gameTime)
         {
             Matrix shipWorldMatrix = mShipOrientationMatrix * mShipLocationMatrix;
-            mViewMatrix = Matrix.Invert(Matrix.CreateTranslation(-400, 400, 1800) * shipWorldMatrix);
+            ViewMatrix = Matrix.Invert(Matrix.CreateTranslation(-400, 400, 1800) * shipWorldMatrix);
             //mViewMatrix = mTestViewMatrix;
 
             GraphicsDevice.Clear(Color.Black);
@@ -123,7 +125,7 @@ namespace Project1B {
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
             DrawShip(shipWorldMatrix);
-            DrawMothership();
+            //DrawMothership();
 
             base.Draw(gameTime);
         }
@@ -143,8 +145,8 @@ namespace Project1B {
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] * shipWorldMatrix;
-                    effect.View = mViewMatrix;
-                    effect.Projection = mProjectionMatrix;
+                    effect.View = ViewMatrix;
+                    effect.Projection = ProjectionMatrix;
                 }
                 // Draw the mesh, using the effects set above.
                 mesh.Draw();
@@ -166,8 +168,8 @@ namespace Project1B {
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index];
-                    effect.View = mViewMatrix;
-                    effect.Projection = mProjectionMatrix;
+                    effect.View = ViewMatrix;
+                    effect.Projection = ProjectionMatrix;
                 }
                 // Draw the mesh, using the effects set above.
                 mesh.Draw();

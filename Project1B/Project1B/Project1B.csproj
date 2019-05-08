@@ -64,7 +64,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\InstancedEffect.fx" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

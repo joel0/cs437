@@ -12,7 +12,7 @@ namespace Project1B {
         GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
         
-        Space mSpace;
+        public Space Space { get; private set; }
         Model mShipModel;
         Model mMothershipModel;
         Model mAsteroidModel;
@@ -37,12 +37,9 @@ namespace Project1B {
             mGraphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            mSpace = new Space();
-            var box = new BEPUphysics.Entities.Prefabs.Box(BEPUutilities.Vector3.Zero, 100, 100, 100, 10);
-            mSpace.Add(box);
-            box.AngularVelocity = new BEPUutilities.Vector3(10, 0, 0);
-            box.AngularDamping = 0;
-            Components.Add(new Asteroid(this, box));
+            Space = new Space();
+            Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
+            Components.Add(new Asteroid(this, Vector3.Up * 3000, Vector3.Down * 200, Vector3.UnitX));
         }
 
         /// <summary>
@@ -114,7 +111,7 @@ namespace Project1B {
             mShipOrientationMatrix = Matrix.CreateFromYawPitchRoll(yaw * 0.1f, pitch * 0.1f, roll * 0.1f) * mShipOrientationMatrix;
             mShipLocationMatrix = Matrix.Invert(mShipOrientationMatrix) * Matrix.CreateTranslation(location) * mShipOrientationMatrix * mShipLocationMatrix;
 
-            mSpace.Update();
+            Space.Update();
 
             base.Update(gameTime);
         }

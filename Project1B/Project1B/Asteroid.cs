@@ -13,17 +13,18 @@ namespace Project1B {
         static Model mModel = null;
         readonly SpaceDockerGame mGame;
         readonly Entity mPhysicsEntity;
-        Matrix mRotationMatrix = Matrix.CreateTranslation(0, 0, 0);
-        Matrix mTranslationMatrix;
-        float mVelocityAngleX = 1;
-        float mVelocityAngleY = 1;
-        float mVelocityAngleZ = 1;
-        Vector3 mPosition = new Vector3(0, 0, 0);
-        Vector3 mVelocity = new Vector3(0, 0, 1);
 
-        public Asteroid(SpaceDockerGame game, Entity physicsEntity) : base(game) {
+        public Asteroid(SpaceDockerGame game, Vector3 position, Vector3 speed, Vector3 angularSpeed) : base(game) {
             mGame = game;
-            mPhysicsEntity = physicsEntity;
+            // Magic numbers for capsule length and radius correspond to model dimensions
+            mPhysicsEntity = new BEPUphysics.Entities.Prefabs.Capsule(MathConverter.Convert(position), 1300, 400, 1)
+            {
+                AngularDamping = 0,
+                LinearDamping = 0,
+                LinearVelocity = MathConverter.Convert(speed),
+                AngularVelocity = MathConverter.Convert(angularSpeed)
+            };
+            mGame.Space.Add(mPhysicsEntity);
         }
 
         public override void Initialize() {
@@ -37,13 +38,6 @@ namespace Project1B {
         }
 
         public override void Update(GameTime gameTime) {
-            mRotationMatrix = Matrix.CreateRotationX((float)(mVelocityAngleX * gameTime.ElapsedGameTime.TotalSeconds))
-                            * Matrix.CreateRotationY((float)(mVelocityAngleY * gameTime.ElapsedGameTime.TotalSeconds))
-                            * Matrix.CreateRotationZ((float)(mVelocityAngleZ * gameTime.ElapsedGameTime.TotalSeconds))
-                            * mRotationMatrix;
-            mPosition += mVelocity * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-            mTranslationMatrix = Matrix.CreateTranslation(mPosition);
-
             base.Update(gameTime);
         }
 

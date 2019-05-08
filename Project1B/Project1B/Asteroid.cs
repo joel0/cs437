@@ -37,23 +37,28 @@ namespace Project1B {
             // Collision with other asteroid.
             if ((other as ConvexCollidable).Entity.Tag is Asteroid otherAsteroid) {
                 // Delete both asteroids
-                if (mGame.Components.Remove(this)) {
+                mGame.Components.Remove(this);
+                mGame.Components.Remove(otherAsteroid);
+                try {
                     mGame.Space.Remove(pair.EntityA);
                     mGame.Space.Remove(pair.EntityB);
-                    mGame.Components.Remove(otherAsteroid);
-                }
+                } catch { /* Do nothing */ }
             }
             // Collision with mothership.
             if ((other as ConvexCollidable).Entity.Tag is Mothership mothership) {
                 // Delete the asteroid
                 mGame.Components.Remove(this);
-                mGame.Space.Remove(((ConvexCollidable)other).Entity);
+                try {
+                    mGame.Space.Remove(((ConvexCollidable)other).Entity);
+                } catch { /* Do nothing */ }
             }
             // Collision with mothership's goal.
             if ((other as ConvexCollidable).Entity.Tag is MothershipGoal mothershipGoal) {
                 // Delete the asteroid
                 mGame.Components.Remove(this);
+                try {
                 mGame.Space.Remove(((ConvexCollidable)other).Entity);
+                } catch { /* Do nothing */ }
             }
         }
 

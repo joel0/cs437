@@ -20,6 +20,7 @@ namespace Project1B {
         public int Health { get; private set; } = HEALTH_MAX;
         public float Fuel { get; private set; } = FUEL_MAX;
         public int TorpedoesAvail = TORPEDO_MAX_AVAIL;
+        public bool IsShieldOn { get; private set; } = false;
         Vector2 mTorpedoAim = Vector2.Zero;
         const int ASTEROID_DAMAGE = 25;
         const int TORPEDO_SPEED = 10000;
@@ -29,6 +30,7 @@ namespace Project1B {
         const int HEALTH_MAX = 100;
         public const int TORPEDO_MAX_AVAIL = 10;
         GamePadState? mPreviousGPState = null;
+        KeyboardState? mPreviousKBState = null;
 
         public Matrix WorldMatrix {
             get {
@@ -58,7 +60,11 @@ namespace Project1B {
             ConvexCollidable o = other as ConvexCollidable;
             // Collision with asteroid.
             if (o?.Entity.Tag is Asteroid asteroid) {
-                Health = Math.Max(Health - ASTEROID_DAMAGE, 0);
+                if (IsShieldOn) {
+                    Health = Math.Max(Health - (int)(ASTEROID_DAMAGE * 0.1), 0);
+                } else {
+                    Health = Math.Max(Health - ASTEROID_DAMAGE, 0);
+                }
                 if (Health == 0) {
                     // Game over. Delete the player
                     Lose();
@@ -105,50 +111,96 @@ namespace Project1B {
             BEPUutilities.Vector3 angularForce = BEPUutilities.Vector3.Zero;
 
             // PROCESS INPUT
-            if (!mGame.IsGameOver && GamePad.GetState(PlayerIndex.One).IsConnected) {
-                yaw -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X;
-                pitch -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.Y;
-                roll -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
+            if (!mGame.IsGameOver) {
+                if (GamePad.GetState(PlayerIndex.One).IsConnected) {
+                    // Yaw pitch roll
+                    yaw -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X;
+                    pitch -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.Y;
+                    roll -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
 
-                throttle = (GamePad.GetState(PlayerIndex.One).Triggers.Right - GamePad.GetState(PlayerIndex.One).Triggers.Left) * 50f;
+                    // throttle
+                    throttle = (GamePad.GetState(PlayerIndex.One).Triggers.Right - GamePad.GetState(PlayerIndex.One).Triggers.Left) * 50f;
 
-                if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed &&
-                    mPreviousGPState?.Buttons.A == ButtonState.Released) {
-                    FireTorpedo();
+                    // Torpedo
+                    if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed &&
+                        mPreviousGPState?.Buttons.A == ButtonState.Released) {
+                        FireTorpedo();
+                    }
+
+                    // Wormhole
+                    if (GamePad.GetState(PlayerIndex.One).Buttons.B == ButtonState.Pressed &&
+                        mPreviousGPState?.Buttons.B == ButtonState.Released) {
+                        DoWormhole();
+                    }
+
+                    // Shield
+                    if (GamePad.GetState(PlayerIndex.One).Buttons.X == ButtonState.Pressed &&
+                        mPreviousGPState?.Buttons.X == ButtonState.Released) {
+                        IsShieldOn = !IsShieldOn;
+                    }
+
+                    // Torpedo aim
+                    if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed) {
+                        mTorpedoAim.Y -= 0.4f;
+                    }
+                    if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed) {
+                        mTorpedoAim.Y += 0.4f;
+                    }
+                    if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed) {
+                        mTorpedoAim.X -= 0.4f;
+                    }
+                    if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed) {
+                        mTorpedoAim.X += 0.4f;
+                    }
+
+                    mPreviousGPState = GamePad.GetState(PlayerIndex.One);
                 }
 
-                if (GamePad.GetState(PlayerIndex.One).Buttons.B == ButtonState.Pressed &&
-                    mPreviousGPState?.Buttons.B == ButtonState.Released) {
-                    DoWormhole();
-                }
+                // Yaw
+                if (Keyboard.GetState().IsKeyDown(Keys.A)) { yaw += 0.2f; }
+                if (Keyboard.GetState().IsKeyDown(Keys.D)) { yaw -= 0.2f; }
+                // Pitch
+                if (Keyboard.GetState().IsKeyDown(Keys.W)) { pitch -= 0.2f; }
+                if (Keyboard.GetState().IsKeyDown(Keys.S)) { pitch += 0.2f; }
+                // Roll
+                if (Keyboard.GetState().IsKeyDown(Keys.Q)) { roll += 0.2f; }
+                if (Keyboard.GetState().IsKeyDown(Keys.E)) { roll -= 0.2f; }
+                // Throttle
+                if (Keyboard.GetState().IsKeyDown(Keys.Up)) { throttle += 50; }
+                if (Keyboard.GetState().IsKeyDown(Keys.Down)) { throttle -= 50; }
+                // Torpedo
+                if (Keyboard.GetState().IsKeyDown(Keys.Left) &&
+                    mPreviousKBState?.IsKeyUp(Keys.Left) == true) { FireTorpedo(); }
+                // Wormhole
+                if (Keyboard.GetState().IsKeyDown(Keys.Right) &&
+                    mPreviousKBState?.IsKeyUp(Keys.Right) == true) { DoWormhole(); }
+                // Shield
+                if (Keyboard.GetState().IsKeyDown(Keys.OemSemicolon) &&
+                    mPreviousKBState?.IsKeyUp(Keys.OemSemicolon) == true) { IsShieldOn = !IsShieldOn; }
+                // Torpedo aim
+                if (Keyboard.GetState().IsKeyDown(Keys.K)) { mTorpedoAim.Y -= 0.4f; }
+                if (Keyboard.GetState().IsKeyDown(Keys.J)) { mTorpedoAim.Y += 0.4f; }
+                if (Keyboard.GetState().IsKeyDown(Keys.H)) { mTorpedoAim.X -= 0.4f; }
+                if (Keyboard.GetState().IsKeyDown(Keys.L)) { mTorpedoAim.X += 0.4f; }
 
-                if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed) {
-                    mTorpedoAim.Y -= 0.4f;
-                }
-                if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed) {
-                    mTorpedoAim.Y += 0.4f;
-                }
-                if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed) {
-                    mTorpedoAim.X -= 0.4f;
-                }
-                if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed) {
-                    mTorpedoAim.X += 0.4f;
-                }
-                if (mTorpedoAim.X > 20) { mTorpedoAim.X = 20; }
-                if (mTorpedoAim.X < -20) { mTorpedoAim.X = -20; }
-                if (mTorpedoAim.Y > 20) { mTorpedoAim.Y = 20; }
-                if (mTorpedoAim.Y < -20) { mTorpedoAim.Y = -20; }
-
-                mPreviousGPState = GamePad.GetState(PlayerIndex.One);
+                mPreviousKBState = Keyboard.GetState();
             }
 
             Fuel -= Math.Abs(yaw) * FUEL_ROTATE
                   + Math.Abs(pitch) * FUEL_ROTATE
                   + Math.Abs(roll) * FUEL_ROTATE
                   + Math.Abs(throttle) * FUEL_THROTTLE;
+            if (IsShieldOn) {
+                Fuel -= (float)gameTime.ElapsedGameTime.TotalSeconds * 3;
+            }
+            // Check bounds
             if (Fuel <= 0) {
                 Lose();
             }
+            if (mTorpedoAim.X > 20) { mTorpedoAim.X = 20; }
+            if (mTorpedoAim.X < -20) { mTorpedoAim.X = -20; }
+            if (mTorpedoAim.Y > 20) { mTorpedoAim.Y = 20; }
+            if (mTorpedoAim.Y < -20) { mTorpedoAim.Y = -20; }
 
             // CALCULATE FORCES BASED ON ORIENTATION
             angularForce = mPhysicsEntity.WorldTransform.Up * yaw * 10000

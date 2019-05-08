@@ -11,18 +11,18 @@ namespace Project1B {
     public class SpaceDockerGame : Game {
         readonly GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
-        public bool IsGameOver = false;
-        public bool IsWin = false;
-
-        public const float PLAY_AREA_SIZE = 100000;
-
         public Space Space { get; private set; }
+        System.Random mRandom = new System.Random();
 
+        Ship mShip;
         SpriteFont mFont;
         SpriteFont mFontHUD;
         Texture2D mBlueTexture;
 
-        Ship mShip;
+        public bool IsGameOver = false;
+        public bool IsWin = false;
+        public const float PLAY_AREA_SIZE = 300000;
+
 
         Matrix mTestViewMatrix;
         public Matrix ProjectionMatrix { get; private set; }
@@ -38,15 +38,25 @@ namespace Project1B {
             Content.RootDirectory = "Content";
 
             Space = new Space();
-            mShip = new Ship(this, Vector3.Backward * 2000);
+            Vector3 location = RandomLocation();
+            location.Z = PLAY_AREA_SIZE / 2;
+            mShip = new Ship(this, location);
             //Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 2000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 4000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
-            Components.Add(new Mothership(this, Vector3.Forward * 12000));
-            Components.Add(new Powerup(this, Vector3.Zero));
+            location = RandomLocation();
+            location.Z = -PLAY_AREA_SIZE / 2;
+            Components.Add(new Mothership(this, location));
+            //Components.Add(new Powerup(this, Vector3.Zero));
+            for (int i = 0; i < 1000; i++) {
+                SpawnAsteroid();
+            }
+            for (int i = 0; i < 50; i++) {
+                SpawnPowerup();
+            }
             Components.Add(mShip);
             Components.Add(new Skybox(this));
         }
@@ -138,7 +148,44 @@ namespace Project1B {
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(680, 10, 100 * mShip.TorpedoesAvail / Ship.TORPEDO_MAX_AVAIL, 20), Color.White);
             // Torpedo aim
             mShip.DrawHUD(mSpriteBatch, mBlueTexture);
+            // Shield
+            if (mShip.IsShieldOn) {
+                if (System.DateTime.Now.Second % 2 == 0) {
+                    mSpriteBatch.DrawString(mFontHUD, "SHIELD", new Vector2(380, 450), Color.Lime);
+                } else {
+                    mSpriteBatch.DrawString(mFontHUD, "SHIELD", new Vector2(380, 450), Color.Green);
+                }
+            }
             mSpriteBatch.End();
+        }
+
+        private void SpawnAsteroid() {
+            Components.Add(new Asteroid(this, RandomLocation() * 2, RandomSpeed(), RandomRotation()));
+        }
+
+        private void SpawnPowerup() {
+            Components.Add(new Powerup(this, RandomLocation() * 2));
+        }
+
+        private Vector3 RandomLocation() {
+            return new Vector3(
+                (float)(PLAY_AREA_SIZE * (mRandom.NextDouble() - 0.5)),
+                (float)(PLAY_AREA_SIZE * (mRandom.NextDouble() - 0.5)),
+                (float)(PLAY_AREA_SIZE * (mRandom.NextDouble() - 0.5)));
+        }
+
+        private Vector3 RandomSpeed() {
+            return new Vector3(
+                (float)(1000 * (mRandom.NextDouble() - 0.5)),
+                (float)(1000 * (mRandom.NextDouble() - 0.5)),
+                (float)(1000 * (mRandom.NextDouble() - 0.5)));
+        }
+
+        private Vector3 RandomRotation() {
+            return new Vector3(
+                (float)(2 * (mRandom.NextDouble() - 0.5)),
+                (float)(2 * (mRandom.NextDouble() - 0.5)),
+                (float)(2 * (mRandom.NextDouble() - 0.5)));
         }
     }
 }

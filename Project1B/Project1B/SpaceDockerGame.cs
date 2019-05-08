@@ -129,6 +129,10 @@ namespace Project1B {
             mSpriteBatch.DrawString(mFontHUD, "Fuel:", new Vector2(10, 10), Color.SkyBlue);
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(50, 10, 100, 20), Color.Blue);
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(50, 10, (int)(100 * mShip.Fuel / 100), 20), Color.White);
+            // Torpedos
+            mSpriteBatch.DrawString(mFontHUD, "Torpedoes:", new Vector2(600, 10), Color.SkyBlue);
+            mSpriteBatch.Draw(mBlueTexture, new Rectangle(680, 10, 100, 20), Color.Blue);
+            mSpriteBatch.Draw(mBlueTexture, new Rectangle(680, 10, 100 * mShip.TorpedoesAvail / Ship.TORPEDO_MAX_AVAIL, 20), Color.White);
             mSpriteBatch.End();
         }
 

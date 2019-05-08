@@ -19,10 +19,12 @@ namespace Project1B {
         readonly Entity mPhysicsEntity;
         public int Health { get; private set; } = 100;
         public float Fuel { get; private set; } = 100;
+        public int TorpedoesAvail = TORPEDO_MAX_AVAIL;
         const int ASTEROID_DAMAGE = 25;
         const int TORPEDO_SPEED = 10000;
         const float FUEL_ROTATE = 0.05f;
         const float FUEL_THROTTLE = 0.005f;
+        public const int TORPEDO_MAX_AVAIL = 10;
         GamePadState? mPreviousGPState = null;
 
         public Matrix WorldMatrix {
@@ -140,17 +142,21 @@ namespace Project1B {
         }
 
         void FireTorpedo() {
-            Torpedo newTorpedo;
-            BEPUutilities.Vector3 position;
-            BEPUutilities.Vector3 velocity;
+            if (TorpedoesAvail > 0) {
+                TorpedoesAvail--;
 
-            position = mPhysicsEntity.WorldTransform.Translation
-                     + mPhysicsEntity.WorldTransform.Forward * 1000;
-            velocity = mPhysicsEntity.LinearVelocity
-                     + mPhysicsEntity.WorldTransform.Forward * TORPEDO_SPEED;
+                Torpedo newTorpedo;
+                BEPUutilities.Vector3 position;
+                BEPUutilities.Vector3 velocity;
 
-            newTorpedo = new Torpedo(mGame, MathConverter.Convert(position), MathConverter.Convert(velocity));
-            mGame.Components.Add(newTorpedo);
+                position = mPhysicsEntity.WorldTransform.Translation
+                         + mPhysicsEntity.WorldTransform.Forward * 1000;
+                velocity = mPhysicsEntity.LinearVelocity
+                         + mPhysicsEntity.WorldTransform.Forward * TORPEDO_SPEED;
+
+                newTorpedo = new Torpedo(mGame, MathConverter.Convert(position), MathConverter.Convert(velocity));
+                mGame.Components.Add(newTorpedo);
+            }
         }
     }
 }

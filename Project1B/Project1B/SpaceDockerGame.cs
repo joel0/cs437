@@ -14,6 +14,8 @@ namespace Project1B {
         public bool IsGameOver = false;
         public bool IsWin = false;
 
+        public const float PLAY_AREA_SIZE = 100000;
+
         public Space Space { get; private set; }
 
         SpriteFont mFont;
@@ -43,7 +45,7 @@ namespace Project1B {
             //Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
-            //Components.Add(new Mothership(this, Vector3.Forward * 12000));
+            Components.Add(new Mothership(this, Vector3.Forward * 12000));
             Components.Add(new Powerup(this, Vector3.Zero));
             Components.Add(mShip);
             Components.Add(new Skybox(this));

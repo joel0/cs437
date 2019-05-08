@@ -117,6 +117,11 @@ namespace Project1B {
                     FireTorpedo();
                 }
 
+                if (GamePad.GetState(PlayerIndex.One).Buttons.B == ButtonState.Pressed &&
+                    mPreviousGPState?.Buttons.B == ButtonState.Released) {
+                    DoWormhole();
+                }
+
                 if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed) {
                     mTorpedoAim.Y -= 0.4f;
                 }
@@ -226,6 +231,17 @@ namespace Project1B {
         private bool IsSafeDockingSpeed() {
             return mPhysicsEntity.LinearVelocity.Length() < 2000
                 && mPhysicsEntity.AngularVelocity.Length() < 1;
+        }
+
+        private void DoWormhole() {
+            Random rng = new Random();
+            Fuel -= 15;
+            mPhysicsEntity.LinearVelocity = new BEPUutilities.Vector3(0, 0, 10f);
+            mPhysicsEntity.AngularVelocity = BEPUutilities.Vector3.Zero;
+            mPhysicsEntity.Position = new BEPUutilities.Vector3(
+                (float)(SpaceDockerGame.PLAY_AREA_SIZE * (rng.NextDouble() - 0.5)),
+                (float)(SpaceDockerGame.PLAY_AREA_SIZE * (rng.NextDouble() - 0.5)),
+                (float)(SpaceDockerGame.PLAY_AREA_SIZE * (rng.NextDouble() - 0.5)));
         }
     }
 }

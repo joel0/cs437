@@ -48,6 +48,7 @@
     <Compile Include="SpaceDockerGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Torpedo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BEPUphysics, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">

@@ -19,6 +19,8 @@ namespace Project1B {
         readonly Entity mPhysicsEntity;
         public int Health { get; private set; } = 100;
         const int ASTEROID_DAMAGE = 25;
+        const int TORPEDO_SPEED = 10000;
+        GamePadState? mPreviousGPState = null;
 
         public Matrix WorldMatrix {
             get {
@@ -74,12 +76,18 @@ namespace Project1B {
             BEPUutilities.Vector3 angularForce = BEPUutilities.Vector3.Zero;
 
             // PROCESS INPUT
-            if (GamePad.GetState(PlayerIndex.One).IsConnected) {
+            if (!mGame.IsGameOver && GamePad.GetState(PlayerIndex.One).IsConnected) {
                 yaw -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X;
                 pitch -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.Y;
                 roll -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X;
 
                 throttle = (GamePad.GetState(PlayerIndex.One).Triggers.Right - GamePad.GetState(PlayerIndex.One).Triggers.Left) * 50f;
+
+                if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed &&
+                    mPreviousGPState?.Buttons.A == ButtonState.Released) {
+                    FireTorpedo();
+                }
+                mPreviousGPState = GamePad.GetState(PlayerIndex.One);
             }
 
             // CALCULATE FORCES BASED ON ORIENTATION
@@ -116,6 +124,20 @@ namespace Project1B {
             }
 
             base.Draw(gameTime);
+        }
+
+        void FireTorpedo() {
+            Torpedo newTorpedo;
+            BEPUutilities.Vector3 position;
+            BEPUutilities.Vector3 velocity;
+
+            position = mPhysicsEntity.WorldTransform.Translation
+                     + mPhysicsEntity.WorldTransform.Forward * 1000;
+            velocity = mPhysicsEntity.LinearVelocity
+                     + mPhysicsEntity.WorldTransform.Forward * TORPEDO_SPEED;
+
+            newTorpedo = new Torpedo(mGame, MathConverter.Convert(position), MathConverter.Convert(velocity));
+            mGame.Components.Add(newTorpedo);
         }
     }
 }

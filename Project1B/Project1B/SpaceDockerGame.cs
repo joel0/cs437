@@ -38,11 +38,11 @@ namespace Project1B {
 
             Space = new Space();
             mShip = new Ship(this, Vector3.Backward * 2000);
-            Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
-            Components.Add(new Asteroid(this, Vector3.Forward * 2000, Vector3.Zero, Vector3.Zero));
-            Components.Add(new Asteroid(this, Vector3.Forward * 4000, Vector3.Zero, Vector3.Zero));
+            //Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
+            //Components.Add(new Asteroid(this, Vector3.Forward * 2000, Vector3.Zero, Vector3.Zero));
+            //Components.Add(new Asteroid(this, Vector3.Forward * 4000, Vector3.Zero, Vector3.Zero));
             Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
-            Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
+            //Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
             Components.Add(mShip);
             Components.Add(new Skybox(this));

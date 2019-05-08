@@ -54,6 +54,9 @@
     <Reference Include="BEPUutilities, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BEPUutilities.1.5.1\lib\netstandard2.0\BEPUutilities.dll</HintPath>
     </Reference>
+    <Reference Include="ConversionHelper">
+      <HintPath>..\..\..\bepuphysics1\ConversionHelper\bin\Debug\ConversionHelper.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -61,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\InstancedEffect.fx" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

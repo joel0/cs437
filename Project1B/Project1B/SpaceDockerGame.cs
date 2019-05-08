@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BEPUphysics;
+using ConversionHelper;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,6 +11,8 @@ namespace Project1B {
     public class SpaceDockerGame : Game {
         GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
+        
+        Space mSpace;
         Model mShipModel;
         Model mMothershipModel;
         Model mAsteroidModel;
@@ -33,7 +37,12 @@ namespace Project1B {
             mGraphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            Components.Add(new Asteroid(this));
+            mSpace = new Space();
+            var box = new BEPUphysics.Entities.Prefabs.Box(BEPUutilities.Vector3.Zero, 100, 100, 100, 10);
+            mSpace.Add(box);
+            box.AngularVelocity = new BEPUutilities.Vector3(10, 0, 0);
+            box.AngularDamping = 0;
+            Components.Add(new Asteroid(this, box));
         }
 
         /// <summary>
@@ -104,6 +113,8 @@ namespace Project1B {
             // UPDATE OBJECTS
             mShipOrientationMatrix = Matrix.CreateFromYawPitchRoll(yaw * 0.1f, pitch * 0.1f, roll * 0.1f) * mShipOrientationMatrix;
             mShipLocationMatrix = Matrix.Invert(mShipOrientationMatrix) * Matrix.CreateTranslation(location) * mShipOrientationMatrix * mShipLocationMatrix;
+
+            mSpace.Update();
 
             base.Update(gameTime);
         }

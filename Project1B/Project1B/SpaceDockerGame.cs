@@ -11,7 +11,7 @@ namespace Project1B {
     public class SpaceDockerGame : Game {
         GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
-        
+
         public Space Space { get; private set; }
 
         Ship mShip;
@@ -21,9 +21,13 @@ namespace Project1B {
         Matrix mTestViewMatrix;
         public Matrix ProjectionMatrix { get; private set; }
         public Matrix ViewMatrix { get; private set; }
+        public Matrix OrientationMatrix {
+            get {
+                return mShip.OrientationMatrix;
+            }
+        }
 
-        public SpaceDockerGame()
-        {
+        public SpaceDockerGame() {
             mGraphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
@@ -32,6 +36,7 @@ namespace Project1B {
             Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Up * 3000, Vector3.Down * 200, Vector3.UnitX));
             Components.Add(mShip);
+            Components.Add(new Skybox(this));
         }
 
         /// <summary>
@@ -40,13 +45,12 @@ namespace Project1B {
         /// related content.  Calling base.Initialize will enumerate through any components
         /// and initialize them as well.
         /// </summary>
-        protected override void Initialize()
-        {
+        protected override void Initialize() {
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(45),  // 45 degree angle
                 (float)GraphicsDevice.Viewport.Width /
                 GraphicsDevice.Viewport.Height,
-                1.0f, 10000.0f);
+                1.0f, 1000000000.0f);
 
             mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
 
@@ -57,8 +61,7 @@ namespace Project1B {
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
-        protected override void LoadContent()
-        {
+        protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             mSpriteBatch = new SpriteBatch(GraphicsDevice);
             mMothershipModel = Content.Load<Model>("Models/mothership");
@@ -76,8 +79,7 @@ namespace Project1B {
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
-        {
+        protected override void Update(GameTime gameTime) {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -89,10 +91,9 @@ namespace Project1B {
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
-        {
-            //ViewMatrix = Matrix.Invert(Matrix.CreateTranslation(-400, 400, 1800) * shipWorldMatrix);
-            ViewMatrix = mTestViewMatrix;
+        protected override void Draw(GameTime gameTime) {
+            ViewMatrix = Matrix.Invert(Matrix.CreateTranslation(-400, 400, 1800) * mShip.WorldMatrix);
+            //ViewMatrix = mTestViewMatrix;
 
             GraphicsDevice.Clear(Color.Black);
 
@@ -105,19 +106,16 @@ namespace Project1B {
             base.Draw(gameTime);
         }
 
-        private void DrawMothership()
-        {
+        private void DrawMothership() {
             // Copy any parent transforms.
             Matrix[] transforms = new Matrix[mMothershipModel.Bones.Count];
             mMothershipModel.CopyAbsoluteBoneTransformsTo(transforms);
 
             // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in mMothershipModel.Meshes)
-            {
+            foreach (ModelMesh mesh in mMothershipModel.Meshes) {
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
+                foreach (BasicEffect effect in mesh.Effects) {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index];
                     effect.View = ViewMatrix;

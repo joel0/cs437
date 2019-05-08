@@ -18,8 +18,11 @@ namespace Project1B {
         Model mShipModel;
         readonly Entity mPhysicsEntity;
         public int Health { get; private set; } = 100;
+        public float Fuel { get; private set; } = 100;
         const int ASTEROID_DAMAGE = 25;
         const int TORPEDO_SPEED = 10000;
+        const float FUEL_ROTATE = 0.05f;
+        const float FUEL_THROTTLE = 0.005f;
         GamePadState? mPreviousGPState = null;
 
         public Matrix WorldMatrix {
@@ -68,9 +71,9 @@ namespace Project1B {
         }
 
         public override void Update(GameTime gameTime) {
-            float yaw = MathHelper.ToRadians(0);
-            float pitch = MathHelper.ToRadians(0);
-            float roll = MathHelper.ToRadians(0);
+            float yaw = 0;
+            float pitch = 0;
+            float roll = 0;
             float throttle = 0;
             BEPUutilities.Vector3 linearForce = BEPUutilities.Vector3.Zero;
             BEPUutilities.Vector3 angularForce = BEPUutilities.Vector3.Zero;
@@ -88,6 +91,16 @@ namespace Project1B {
                     FireTorpedo();
                 }
                 mPreviousGPState = GamePad.GetState(PlayerIndex.One);
+            }
+
+            Fuel -= Math.Abs(yaw) * FUEL_ROTATE
+                  + Math.Abs(pitch) * FUEL_ROTATE
+                  + Math.Abs(roll) * FUEL_ROTATE
+                  + Math.Abs(throttle) * FUEL_THROTTLE;
+            if (Fuel <= 0) {
+                mGame.IsGameOver = true;
+                mGame.Components.Remove(this);
+                mGame.Space.Remove(mPhysicsEntity);
             }
 
             // CALCULATE FORCES BASED ON ORIENTATION

@@ -121,9 +121,14 @@ namespace Project1B {
             if (IsGameOver) {
                 mSpriteBatch.DrawString(mFont, "Game Over", new Vector2(250, 200), Color.White);
             }
+            // Health
             mSpriteBatch.DrawString(mFontHUD, "Health:", new Vector2(300, 10), Color.SkyBlue);
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(350, 10, 100, 20), Color.Blue);
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(350, 10, mShip.Health, 20), Color.White);
+            // Fuel
+            mSpriteBatch.DrawString(mFontHUD, "Fuel:", new Vector2(10, 10), Color.SkyBlue);
+            mSpriteBatch.Draw(mBlueTexture, new Rectangle(50, 10, 100, 20), Color.Blue);
+            mSpriteBatch.Draw(mBlueTexture, new Rectangle(50, 10, (int)(100 * mShip.Fuel / 100), 20), Color.White);
             mSpriteBatch.End();
         }
 

@@ -16,6 +16,9 @@ namespace Project1B {
         public Space Space { get; private set; }
 
         SpriteFont mFont;
+        SpriteFont mFontHUD;
+        Texture2D mBlueTexture;
+
         Ship mShip;
         Model mMothershipModel;
         Model mAsteroidModel;
@@ -36,6 +39,10 @@ namespace Project1B {
             Space = new Space();
             mShip = new Ship(this, Vector3.Backward * 2000);
             Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
+            Components.Add(new Asteroid(this, Vector3.Forward * 2000, Vector3.Zero, Vector3.Zero));
+            Components.Add(new Asteroid(this, Vector3.Forward * 4000, Vector3.Zero, Vector3.Zero));
+            Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
+            Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
             Components.Add(mShip);
             Components.Add(new Skybox(this));
@@ -69,6 +76,8 @@ namespace Project1B {
             mMothershipModel = Content.Load<Model>("Models/mothership");
             mAsteroidModel = Content.Load<Model>("Models/astroid");
             mFont = Content.Load<SpriteFont>("Font");
+            mFontHUD = Content.Load<SpriteFont>("FontHUD");
+            mBlueTexture = Content.Load<Texture2D>("BlueTexture");
         }
 
         /// <summary>
@@ -112,6 +121,9 @@ namespace Project1B {
             if (IsGameOver) {
                 mSpriteBatch.DrawString(mFont, "Game Over", new Vector2(250, 200), Color.White);
             }
+            mSpriteBatch.DrawString(mFontHUD, "Health:", new Vector2(300, 10), Color.SkyBlue);
+            mSpriteBatch.Draw(mBlueTexture, new Rectangle(350, 10, 100, 20), Color.Blue);
+            mSpriteBatch.Draw(mBlueTexture, new Rectangle(350, 10, mShip.Health, 20), Color.White);
             mSpriteBatch.End();
         }
 

@@ -17,6 +17,8 @@ namespace Project1B {
         readonly SpaceDockerGame mGame;
         Model mShipModel;
         readonly Entity mPhysicsEntity;
+        public int Health { get; private set; } = 100;
+        const int ASTEROID_DAMAGE = 25;
 
         public Matrix WorldMatrix {
             get {
@@ -45,10 +47,17 @@ namespace Project1B {
         private void OnCollisionDetected(EntityCollidable sender, Collidable other, CollidablePairHandler pair) {
             // Collision with asteroid.
             if ((other as ConvexCollidable).Entity.Tag is Asteroid asteroid) {
-                // Delete the player
-                mGame.Components.Remove(this);
-                mGame.Space.Remove(sender.Entity);
-                mGame.IsGameOver = true;
+                Health = Math.Max(Health - ASTEROID_DAMAGE, 0);
+                if (Health == 0) {
+                    // Game over. Delete the player
+                    mGame.Components.Remove(this);
+                    mGame.Space.Remove(sender.Entity);
+                    mGame.IsGameOver = true;
+                } else {
+                    // Stil alive.  Delete the asteroid
+                    mGame.Components.Remove(asteroid);
+                    mGame.Space.Remove(((ConvexCollidable)other).Entity);
+                }
             }
         }
 

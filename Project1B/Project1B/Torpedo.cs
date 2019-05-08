@@ -1,4 +1,7 @@
-﻿using BEPUphysics.Entities;
+﻿using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.BroadPhaseEntries.MobileCollidables;
+using BEPUphysics.Entities;
+using BEPUphysics.NarrowPhaseSystems.Pairs;
 using ConversionHelper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,7 +26,19 @@ namespace Project1B {
             };
             mGame.Space.Add(mPhysicsEntity);
 
-            // TODO collision event handler
+            mPhysicsEntity.CollisionInformation.Events.DetectingInitialCollision += OnCollisionDetected;
+        }
+
+        private void OnCollisionDetected(EntityCollidable sender, Collidable other, CollidablePairHandler pair) {
+            // Collision with asteroid.
+            if ((other as ConvexCollidable).Entity.Tag is Asteroid asteroid) {
+                // Delete the asteroid and torpedo
+                if (mGame.Components.Remove(this)) {
+                    mGame.Space.Remove(pair.EntityA);
+                    mGame.Space.Remove(pair.EntityB);
+                    mGame.Components.Remove(asteroid);
+                }
+            }
         }
 
         protected override void LoadContent() {

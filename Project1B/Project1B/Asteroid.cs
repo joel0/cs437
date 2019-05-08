@@ -1,4 +1,7 @@
-﻿using BEPUphysics.Entities;
+﻿using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.BroadPhaseEntries.MobileCollidables;
+using BEPUphysics.Entities;
+using BEPUphysics.NarrowPhaseSystems.Pairs;
 using ConversionHelper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,9 +25,24 @@ namespace Project1B {
                 AngularDamping = 0,
                 LinearDamping = 0,
                 LinearVelocity = MathConverter.Convert(speed),
-                AngularVelocity = MathConverter.Convert(angularSpeed)
+                AngularVelocity = MathConverter.Convert(angularSpeed),
+                Tag = this
             };
             mGame.Space.Add(mPhysicsEntity);
+
+            mPhysicsEntity.CollisionInformation.Events.DetectingInitialCollision += OnCollisionDetected;
+        }
+
+        private void OnCollisionDetected(EntityCollidable sender, Collidable other, CollidablePairHandler pair) {
+            // Collision with other asteroid.
+            if ((other as ConvexCollidable).Entity.Tag is Asteroid otherAsteroid) {
+                // Delete both asteroids
+                if (mGame.Components.Remove(this)) {
+                    mGame.Space.Remove(pair.EntityA);
+                    mGame.Space.Remove(pair.EntityB);
+                    mGame.Components.Remove(otherAsteroid);
+                }
+            }
         }
 
         public override void Initialize() {

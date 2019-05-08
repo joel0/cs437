@@ -1,4 +1,7 @@
-﻿using BEPUphysics.Entities;
+﻿using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.BroadPhaseEntries.MobileCollidables;
+using BEPUphysics.Entities;
+using BEPUphysics.NarrowPhaseSystems.Pairs;
 using ConversionHelper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -35,6 +38,18 @@ namespace Project1B {
                 LinearVelocity = new BEPUutilities.Vector3(0, 0, 10f) // This hack might prevent BEPU from freezing
             };
             mGame.Space.Add(mPhysicsEntity);
+
+            mPhysicsEntity.CollisionInformation.Events.DetectingInitialCollision += OnCollisionDetected;
+        }
+
+        private void OnCollisionDetected(EntityCollidable sender, Collidable other, CollidablePairHandler pair) {
+            // Collision with asteroid.
+            if ((other as ConvexCollidable).Entity.Tag is Asteroid asteroid) {
+                // Delete the player
+                mGame.Components.Remove(this);
+                mGame.Space.Remove(sender.Entity);
+                mGame.IsGameOver = true;
+            }
         }
 
         protected override void LoadContent() {
@@ -72,7 +87,7 @@ namespace Project1B {
 
         public override void Draw(GameTime gameTime) {
             Matrix shipWorldMatrix = MathConverter.Convert(mPhysicsEntity.WorldTransform);
-            
+
             // Copy any parent transforms.
             Matrix[] transforms = new Matrix[mShipModel.Bones.Count];
             mShipModel.CopyAbsoluteBoneTransformsTo(transforms);

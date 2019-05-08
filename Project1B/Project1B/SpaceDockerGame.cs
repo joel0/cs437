@@ -11,9 +11,11 @@ namespace Project1B {
     public class SpaceDockerGame : Game {
         GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
+        public bool IsGameOver = false;
 
         public Space Space { get; private set; }
 
+        SpriteFont mFont;
         Ship mShip;
         Model mMothershipModel;
         Model mAsteroidModel;
@@ -34,7 +36,7 @@ namespace Project1B {
             Space = new Space();
             mShip = new Ship(this, Vector3.Backward * 2000);
             Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
-            //Components.Add(new Asteroid(this, Vector3.Up * 3000, Vector3.Down * 200, Vector3.UnitX));
+            //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
             Components.Add(mShip);
             Components.Add(new Skybox(this));
         }
@@ -66,6 +68,7 @@ namespace Project1B {
             mSpriteBatch = new SpriteBatch(GraphicsDevice);
             mMothershipModel = Content.Load<Model>("Models/mothership");
             mAsteroidModel = Content.Load<Model>("Models/astroid");
+            mFont = Content.Load<SpriteFont>("Font");
         }
 
         /// <summary>
@@ -104,6 +107,12 @@ namespace Project1B {
             //DrawMothership();
 
             base.Draw(gameTime);
+
+            mSpriteBatch.Begin();
+            if (IsGameOver) {
+                mSpriteBatch.DrawString(mFont, "Game Over", new Vector2(250, 200), Color.White);
+            }
+            mSpriteBatch.End();
         }
 
         private void DrawMothership() {

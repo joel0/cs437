@@ -43,7 +43,8 @@ namespace Project1B {
             //Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
-            Components.Add(new Mothership(this, Vector3.Forward * 12000));
+            //Components.Add(new Mothership(this, Vector3.Forward * 12000));
+            Components.Add(new Powerup(this, Vector3.Zero));
             Components.Add(mShip);
             Components.Add(new Skybox(this));
         }
@@ -61,7 +62,7 @@ namespace Project1B {
                 GraphicsDevice.Viewport.Height,
                 1.0f, 1000000000.0f);
 
-            mTestViewMatrix = Matrix.CreateLookAt(new Vector3(30000, 30000, 30000), Vector3.Zero, Vector3.Up);
+            mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
 
             base.Initialize();
         }

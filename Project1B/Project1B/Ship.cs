@@ -17,14 +17,16 @@ namespace Project1B {
         readonly SpaceDockerGame mGame;
         Model mShipModel;
         readonly Entity mPhysicsEntity;
-        public int Health { get; private set; } = 100;
-        public float Fuel { get; private set; } = 100;
+        public int Health { get; private set; } = HEALTH_MAX;
+        public float Fuel { get; private set; } = FUEL_MAX;
         public int TorpedoesAvail = TORPEDO_MAX_AVAIL;
         Vector2 mTorpedoAim = Vector2.Zero;
         const int ASTEROID_DAMAGE = 25;
         const int TORPEDO_SPEED = 10000;
         const float FUEL_ROTATE = 0.02f;
         const float FUEL_THROTTLE = 0.002f;
+        const int FUEL_MAX = 100;
+        const int HEALTH_MAX = 100;
         public const int TORPEDO_MAX_AVAIL = 10;
         GamePadState? mPreviousGPState = null;
 
@@ -53,8 +55,9 @@ namespace Project1B {
         }
 
         private void OnCollisionDetected(EntityCollidable sender, Collidable other, CollidablePairHandler pair) {
+            ConvexCollidable o = other as ConvexCollidable;
             // Collision with asteroid.
-            if ((other as ConvexCollidable).Entity.Tag is Asteroid asteroid) {
+            if (o?.Entity.Tag is Asteroid asteroid) {
                 Health = Math.Max(Health - ASTEROID_DAMAGE, 0);
                 if (Health == 0) {
                     // Game over. Delete the player
@@ -62,11 +65,11 @@ namespace Project1B {
                 } else {
                     // Stil alive.  Delete the asteroid
                     mGame.Components.Remove(asteroid);
-                    mGame.Space.Remove(((ConvexCollidable)other).Entity);
+                    mGame.Space.Remove(o.Entity);
                 }
             }
             // Collision with mothership
-            if ((other as ConvexCollidable).Entity.Tag is Mothership mothership) {
+            if (o?.Entity.Tag is Mothership mothership) {
                 // Game over. Delete the player
                 Lose();
             }
@@ -77,6 +80,15 @@ namespace Project1B {
                 } else {
                     Lose();
                 }
+            }
+            // Collision with powerup
+            if (o?.Entity.Tag is Powerup powerup) {
+                // Delete the powerup
+                mGame.Components.Remove(powerup);
+                mGame.Space.Remove(o.Entity);
+                Fuel = FUEL_MAX;
+                Health = HEALTH_MAX;
+                TorpedoesAvail = TORPEDO_MAX_AVAIL;
             }
         }
 

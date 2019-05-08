@@ -20,6 +20,7 @@ namespace Project1B {
         public int Health { get; private set; } = 100;
         public float Fuel { get; private set; } = 100;
         public int TorpedoesAvail = TORPEDO_MAX_AVAIL;
+        Vector2 mTorpedoAim = Vector2.Zero;
         const int ASTEROID_DAMAGE = 25;
         const int TORPEDO_SPEED = 10000;
         const float FUEL_ROTATE = 0.05f;
@@ -92,6 +93,24 @@ namespace Project1B {
                     mPreviousGPState?.Buttons.A == ButtonState.Released) {
                     FireTorpedo();
                 }
+
+                if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed) {
+                    mTorpedoAim.Y -= 0.4f;
+                }
+                if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed) {
+                    mTorpedoAim.Y += 0.4f;
+                }
+                if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed) {
+                    mTorpedoAim.X -= 0.4f;
+                }
+                if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed) {
+                    mTorpedoAim.X += 0.4f;
+                }
+                if (mTorpedoAim.X > 20) { mTorpedoAim.X = 20; }
+                if (mTorpedoAim.X < -20) { mTorpedoAim.X = -20; }
+                if (mTorpedoAim.Y > 20) { mTorpedoAim.Y = 20; }
+                if (mTorpedoAim.Y < -20) { mTorpedoAim.Y = -20; }
+
                 mPreviousGPState = GamePad.GetState(PlayerIndex.One);
             }
 
@@ -141,6 +160,15 @@ namespace Project1B {
             base.Draw(gameTime);
         }
 
+        public void DrawHUD(SpriteBatch spriteBatch, Texture2D texture) {
+            float xPercent = mTorpedoAim.X / 40;
+            float yPercent = mTorpedoAim.Y / 40;
+            spriteBatch.Draw(texture, new Rectangle(10, 370, 100, 100), Color.Blue);
+            spriteBatch.Draw(texture, new Rectangle(
+                (int)(10 + (100 - 6) * (xPercent + 0.5)),
+                (int)(370 + (100 - 6) * (yPercent + 0.5)), 6, 6), Color.White);
+        }
+
         void FireTorpedo() {
             if (TorpedoesAvail > 0) {
                 TorpedoesAvail--;
@@ -152,7 +180,9 @@ namespace Project1B {
                 position = mPhysicsEntity.WorldTransform.Translation
                          + mPhysicsEntity.WorldTransform.Forward * 1000;
                 velocity = mPhysicsEntity.LinearVelocity
-                         + mPhysicsEntity.WorldTransform.Forward * TORPEDO_SPEED;
+                         + mPhysicsEntity.WorldTransform.Forward * TORPEDO_SPEED
+                         + mPhysicsEntity.WorldTransform.Right * mTorpedoAim.X * TORPEDO_SPEED / 100
+                         + mPhysicsEntity.WorldTransform.Down * mTorpedoAim.Y * TORPEDO_SPEED / 100;
 
                 newTorpedo = new Torpedo(mGame, MathConverter.Convert(position), MathConverter.Convert(velocity));
                 mGame.Components.Add(newTorpedo);

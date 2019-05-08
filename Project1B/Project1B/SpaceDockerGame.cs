@@ -133,6 +133,8 @@ namespace Project1B {
             mSpriteBatch.DrawString(mFontHUD, "Torpedoes:", new Vector2(600, 10), Color.SkyBlue);
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(680, 10, 100, 20), Color.Blue);
             mSpriteBatch.Draw(mBlueTexture, new Rectangle(680, 10, 100 * mShip.TorpedoesAvail / Ship.TORPEDO_MAX_AVAIL, 20), Color.White);
+            // Torpedo aim
+            mShip.DrawHUD(mSpriteBatch, mBlueTexture);
             mSpriteBatch.End();
         }
 

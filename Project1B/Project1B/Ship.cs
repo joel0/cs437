@@ -23,8 +23,8 @@ namespace Project1B {
         Vector2 mTorpedoAim = Vector2.Zero;
         const int ASTEROID_DAMAGE = 25;
         const int TORPEDO_SPEED = 10000;
-        const float FUEL_ROTATE = 0.05f;
-        const float FUEL_THROTTLE = 0.005f;
+        const float FUEL_ROTATE = 0.02f;
+        const float FUEL_THROTTLE = 0.002f;
         public const int TORPEDO_MAX_AVAIL = 10;
         GamePadState? mPreviousGPState = null;
 
@@ -58,13 +58,24 @@ namespace Project1B {
                 Health = Math.Max(Health - ASTEROID_DAMAGE, 0);
                 if (Health == 0) {
                     // Game over. Delete the player
-                    mGame.Components.Remove(this);
-                    mGame.Space.Remove(sender.Entity);
-                    mGame.IsGameOver = true;
+                    Lose();
                 } else {
                     // Stil alive.  Delete the asteroid
                     mGame.Components.Remove(asteroid);
                     mGame.Space.Remove(((ConvexCollidable)other).Entity);
+                }
+            }
+            // Collision with mothership
+            if ((other as ConvexCollidable).Entity.Tag is Mothership mothership) {
+                // Game over. Delete the player
+                Lose();
+            }
+            // Collision with mothership goal.
+            if ((other as ConvexCollidable).Entity.Tag is MothershipGoal mothershipGoal) {
+                if (IsSafeDockingSpeed()) {
+                    Win();
+                } else {
+                    Lose();
                 }
             }
         }
@@ -119,9 +130,7 @@ namespace Project1B {
                   + Math.Abs(roll) * FUEL_ROTATE
                   + Math.Abs(throttle) * FUEL_THROTTLE;
             if (Fuel <= 0) {
-                mGame.IsGameOver = true;
-                mGame.Components.Remove(this);
-                mGame.Space.Remove(mPhysicsEntity);
+                Lose();
             }
 
             // CALCULATE FORCES BASED ON ORIENTATION
@@ -187,6 +196,24 @@ namespace Project1B {
                 newTorpedo = new Torpedo(mGame, MathConverter.Convert(position), MathConverter.Convert(velocity));
                 mGame.Components.Add(newTorpedo);
             }
+        }
+
+        private void Lose() {
+            mGame.Components.Remove(this);
+            mGame.Space.Remove(mPhysicsEntity);
+            mGame.IsGameOver = true;
+        }
+
+        private void Win() {
+            mGame.Components.Remove(this);
+            mGame.Space.Remove(mPhysicsEntity);
+            mGame.IsGameOver = true;
+            mGame.IsWin = true;
+        }
+
+        private bool IsSafeDockingSpeed() {
+            return mPhysicsEntity.LinearVelocity.Length() < 2000
+                && mPhysicsEntity.AngularVelocity.Length() < 1;
         }
     }
 }

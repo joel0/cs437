@@ -43,6 +43,18 @@ namespace Project1B {
                     mGame.Components.Remove(otherAsteroid);
                 }
             }
+            // Collision with mothership.
+            if ((other as ConvexCollidable).Entity.Tag is Mothership mothership) {
+                // Delete the asteroid
+                mGame.Components.Remove(this);
+                mGame.Space.Remove(((ConvexCollidable)other).Entity);
+            }
+            // Collision with mothership's goal.
+            if ((other as ConvexCollidable).Entity.Tag is MothershipGoal mothershipGoal) {
+                // Delete the asteroid
+                mGame.Components.Remove(this);
+                mGame.Space.Remove(((ConvexCollidable)other).Entity);
+            }
         }
 
         public override void Initialize() {

@@ -9,9 +9,10 @@ namespace Project1B {
     /// This is the main type for your game.
     /// </summary>
     public class SpaceDockerGame : Game {
-        GraphicsDeviceManager mGraphics;
+        readonly GraphicsDeviceManager mGraphics;
         SpriteBatch mSpriteBatch;
         public bool IsGameOver = false;
+        public bool IsWin = false;
 
         public Space Space { get; private set; }
 
@@ -20,8 +21,6 @@ namespace Project1B {
         Texture2D mBlueTexture;
 
         Ship mShip;
-        Model mMothershipModel;
-        Model mAsteroidModel;
 
         Matrix mTestViewMatrix;
         public Matrix ProjectionMatrix { get; private set; }
@@ -41,9 +40,10 @@ namespace Project1B {
             //Components.Add(new Asteroid(this, Vector3.Zero, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 2000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 4000, Vector3.Zero, Vector3.Zero));
-            Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
+            //Components.Add(new Asteroid(this, Vector3.Forward * 6000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Forward * 8000, Vector3.Zero, Vector3.Zero));
             //Components.Add(new Asteroid(this, Vector3.Left * 1000, Vector3.Right * 200, Vector3.UnitX));
+            Components.Add(new Mothership(this, Vector3.Forward * 12000));
             Components.Add(mShip);
             Components.Add(new Skybox(this));
         }
@@ -61,7 +61,7 @@ namespace Project1B {
                 GraphicsDevice.Viewport.Height,
                 1.0f, 1000000000.0f);
 
-            mTestViewMatrix = Matrix.CreateLookAt(new Vector3(4000, 4000, 4000), Vector3.Zero, Vector3.Up);
+            mTestViewMatrix = Matrix.CreateLookAt(new Vector3(30000, 30000, 30000), Vector3.Zero, Vector3.Up);
 
             base.Initialize();
         }
@@ -73,8 +73,6 @@ namespace Project1B {
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             mSpriteBatch = new SpriteBatch(GraphicsDevice);
-            mMothershipModel = Content.Load<Model>("Models/mothership");
-            mAsteroidModel = Content.Load<Model>("Models/astroid");
             mFont = Content.Load<SpriteFont>("Font");
             mFontHUD = Content.Load<SpriteFont>("FontHUD");
             mBlueTexture = Content.Load<Texture2D>("BlueTexture");
@@ -113,13 +111,15 @@ namespace Project1B {
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
-            //DrawMothership();
-
             base.Draw(gameTime);
 
             mSpriteBatch.Begin();
             if (IsGameOver) {
-                mSpriteBatch.DrawString(mFont, "Game Over", new Vector2(250, 200), Color.White);
+                if (IsWin) {
+                    mSpriteBatch.DrawString(mFont, "You Win!!", new Vector2(250, 200), Color.White);
+                } else {
+                    mSpriteBatch.DrawString(mFont, "Game Over", new Vector2(250, 200), Color.White);
+                }
             }
             // Health
             mSpriteBatch.DrawString(mFontHUD, "Health:", new Vector2(300, 10), Color.SkyBlue);
@@ -136,26 +136,6 @@ namespace Project1B {
             // Torpedo aim
             mShip.DrawHUD(mSpriteBatch, mBlueTexture);
             mSpriteBatch.End();
-        }
-
-        private void DrawMothership() {
-            // Copy any parent transforms.
-            Matrix[] transforms = new Matrix[mMothershipModel.Bones.Count];
-            mMothershipModel.CopyAbsoluteBoneTransformsTo(transforms);
-
-            // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in mMothershipModel.Meshes) {
-                // This is where the mesh orientation is set, as well 
-                // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects) {
-                    effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index];
-                    effect.View = ViewMatrix;
-                    effect.Projection = ProjectionMatrix;
-                }
-                // Draw the mesh, using the effects set above.
-                mesh.Draw();
-            }
         }
     }
 }

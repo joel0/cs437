@@ -43,6 +43,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Asteroid.cs" />
+    <Compile Include="Mothership.cs" />
+    <Compile Include="MothershipGoal.cs" />
     <Compile Include="Ship.cs" />
     <Compile Include="Skybox.cs" />
     <Compile Include="SpaceDockerGame.cs" />

@@ -22,7 +22,8 @@ namespace Project1B {
             mPhysicsEntity = new BEPUphysics.Entities.Prefabs.Sphere(MathConverter.Convert(position), 30, 1)
             {
                 LinearDamping = 0,
-                LinearVelocity = MathConverter.Convert(velocity)
+                LinearVelocity = MathConverter.Convert(velocity),
+                Tag = this
             };
             mGame.Space.Add(mPhysicsEntity);
 
@@ -38,6 +39,18 @@ namespace Project1B {
                     mGame.Space.Remove(pair.EntityB);
                     mGame.Components.Remove(asteroid);
                 }
+            }
+            // Collision with mothership.
+            if ((other as ConvexCollidable).Entity.Tag is Mothership mothership) {
+                // Delete the torpedo
+                mGame.Components.Remove(this);
+                mGame.Space.Remove(((ConvexCollidable)other).Entity);
+            }
+            // Collision with mothership's goal.
+            if ((other as ConvexCollidable).Entity.Tag is MothershipGoal mothershipGoal) {
+                // Delete the torpedo
+                mGame.Components.Remove(this);
+                mGame.Space.Remove(((ConvexCollidable)other).Entity);
             }
         }
 

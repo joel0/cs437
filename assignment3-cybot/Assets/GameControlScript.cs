@@ -8,13 +8,19 @@ public class GameControlScript : MonoBehaviour {
     public GameObject WinTarget;
     public GameObject Player;
     public GameObject Powerup;
-    public GameObject[] CyBots;
+    GameObject[] CyBots;
+    public GameObject[] CyBotPersonalities;
     float mPowerupEndTime = -1;
     bool mPowerupActive = false;
 
     // Start is called before the first frame update
     void Start() {
-
+        CyBots = new GameObject[StartButton.cyCount];
+        for (int i = 0; i < StartButton.cyCount; i++) {
+            var bot = Instantiate(CyBotPersonalities[Random.Range(0, CyBotPersonalities.Length)]);
+            bot.SetActive(true);
+            CyBots[i] = bot;
+        }
     }
 
     // Update is called once per frame
@@ -31,7 +37,7 @@ public class GameControlScript : MonoBehaviour {
         }
         int closeCys = 0;
         for (int i = 0; i < CyBots.Length; i++) {
-            if (DistBetween(Player, CyBots[i]) < 8) {
+            if (DistBetween(Player, CyBots[i]) < 5) {
                 closeCys++;
             }
         }

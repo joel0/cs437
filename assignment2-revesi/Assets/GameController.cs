@@ -11,13 +11,13 @@ public class GameController : MonoBehaviour {
     bool?[,] mBoardWhite = new bool?[8, 8];
     int mPiecesOnBoard = 0;
     List<AnimationSteps> mPendingAnimations = new List<AnimationSteps>();
-    JoelAI mAI = new JoelAI(3);
+    JoelAI mAI;
     bool mGridNeedsSync = false;
 
     // Start is called before the first frame update
     void Start() {
         for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 7; col++) {
+            for (int col = 0; col < 8; col++) {
                 GameObject newPiece = Instantiate(PieceModel);
                 newPiece.transform.position = CalculateCoordStock(row, col);
                 mActivePieces.Add(newPiece);
@@ -29,10 +29,9 @@ public class GameController : MonoBehaviour {
         PlacePiece(4, 4, true);
         PlacePiece(4, 3, false);
 
+        mAI = new JoelAI(PlayButton.Difficulty);
         mAI.Reset(ReversiCommon.TokenColor.WHITE, ReversiCommon.TokenColor.WHITE);
-        Move m = mAI.GetMove();
-        mAI.MakeMove(m);
-        PlacePiece(m.Row, m.Col, true);
+        AIMove();
     }
 
     // Update is called once per frame
@@ -63,6 +62,22 @@ public class GameController : MonoBehaviour {
                     SyncBoard();
                 }
             }
+        }
+    }
+
+    void AIMove() {
+        Move m = mAI.GetMove();
+        mAI.MakeMove(m);
+        PlacePiece(m.Row, m.Col, true);
+    }
+
+    public void PlayerMove(int row, int col) {
+        if (mAI.IsValidMove(ReversiCommon.TokenColor.BLACK, row, col)) {
+            Move m = new Move(row, col);
+            mAI.MakeMove(m);
+            PlacePiece(row, col, false);
+
+            AIMove();
         }
     }
 

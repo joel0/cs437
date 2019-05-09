@@ -152,7 +152,7 @@ namespace ReversiTournament {
             return chosenMove;
         }
 
-        bool IsValidMove(ReversiCommon.TokenColor activePlayer, int row, int col) {
+        public bool IsValidMove(ReversiCommon.TokenColor activePlayer, int row, int col) {
             if (Board[col, row] != BoardToken.NONE) {
                 return false;
             }
